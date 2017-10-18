@@ -9,7 +9,22 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+//band imports///////////////////////////////////////////////////
+import com.microsoft.band.BandClient;
+import com.microsoft.band.BandClientManager;
+import com.microsoft.band.BandException;
+import com.microsoft.band.BandInfo;
+import com.microsoft.band.BandIOException;
+import com.microsoft.band.ConnectionState;
+import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.HeartRateConsentListener;
+import android.os.AsyncTask;
+/////////////////////////////////////////////////////////////////
+
 public class MainActivity extends AppCompatActivity {
+
+    private BandClient client = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,4 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    //code  from https://www.sitepoint.com/getting-started-with-microsoft-band-sdk/
+    private class BandConnectTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+    }
 }
+
+
