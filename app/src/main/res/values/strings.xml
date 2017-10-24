@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">SwingStats</string>
     <string name="action_settings">Settings</string>
+
+    <string name="startButton">Install</string>
+    <string name="setUpText">To install ShotStats to Your band press Install.</string>
+    <string name="allReadyLinked">Already installed on band press done.</string>
+    <string name="done">Done</string>
 </resources>
