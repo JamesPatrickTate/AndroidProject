@@ -96,10 +96,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //save chosen screen results to strings
-        club = clubSelector.getSelectedItem().toString();
-        swingLength = shotSelector.getSelectedItem().toString();
-        guid = 1;
+
 
         /*
             save button
@@ -122,13 +119,15 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
 
 
-
     }//on create end
 
     /**
      * creates dto and saves to data base
      */
     public void onSaveClicked() {
+        club = clubSelector.getSelectedItem().toString();
+        swingLength = shotSelector.getSelectedItem().toString();
+        guid = 2;
         // create a DTO to hold our shotData information.
         ShotResultsDTO shotData = new ShotResultsDTO();
 
