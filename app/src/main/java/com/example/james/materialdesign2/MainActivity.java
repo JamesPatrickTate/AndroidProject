@@ -61,19 +61,30 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtStatus;
     private ScrollView scrollView;
     private Button btnStop;
+    private Snackbar snackbar;
+    private FloatingActionButton newShot;
+    private FloatingActionButton statistics;
+    private Intent myIntent;
+
 
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
+
+
+
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         btnStart = (Button) findViewById(R.id.startButton);
+        btnStop = (Button) findViewById(R.id.done);
         txtStatus = (TextView) findViewById(R.id.txtStatus);
         scrollView = (ScrollView) findViewById(R.id.svTest);
+        newShot = (FloatingActionButton) findViewById(R.id.newShot);
+        statistics = (FloatingActionButton) findViewById(R.id.staistics);
+
+
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        btnStop = (Button) findViewById(R.id.done);
+
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,10 +105,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        newShot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openNewShot(newShot);
+            }
+        });
 
+
+
+
+    }//end of onCreate
+
+    private void openNewShot(View view) {
+
+        Intent intent = new Intent(this, NewShot.class);
+        startActivity(intent);
     }
 
-        @Override
+    @Override
         protected void onNewIntent(Intent intent) {
             processIntent(intent);
             super.onNewIntent(intent);
@@ -130,21 +156,71 @@ public class MainActivity extends AppCompatActivity {
     private void processIntent(Intent intent){
         String extraString = intent.getStringExtra(getString(R.string.intent_key));
 
-        if(extraString != null && extraString.equals(getString(R.string.intent_value))){
+        if(extraString != null && extraString.equals(getString(R.string.intent_value))){// TODO: 25/10/2017 change UI Append
             if (intent.getAction() == TileEvent.ACTION_TILE_OPENED) {
                 TileEvent tileOpenData = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
-                appendToUI("Tile open event received\n" + tileOpenData.toString() + "\n\n");
+                //appendToUI("Tile open event received\n" + tileOpenData.toString() + "\n\n");
+                snackbar = Snackbar
+                        .make(getWindow().getDecorView().getRootView(), "Tile open event received\n" + tileOpenData.toString() + "\n\n",
+                                Snackbar.LENGTH_SHORT);
+                snackbar.show();
             } else if (intent.getAction() == TileEvent.ACTION_TILE_BUTTON_PRESSED) {
                 TileButtonEvent buttonData = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
-                appendToUI("Button event received\n" + buttonData.toString() + "\n\n");
+                //appendToUI("Button event received\n" + buttonData.toString() + "\n\n");
+                snackbar = Snackbar
+                        .make(getWindow().getDecorView().getRootView(), "Button event received\n" + buttonData.toString() + "\n\n",
+                                Snackbar.LENGTH_SHORT);
+                snackbar.show();
             } else if (intent.getAction() == TileEvent.ACTION_TILE_CLOSED) {
                 TileEvent tileCloseData = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
-                 appendToUI("Tile close event received\n" + tileCloseData.toString() + "\n\n");
+                 //appendToUI("Tile close event received\n" + tileCloseData.toString() + "\n\n");
+                snackbar = Snackbar
+                        .make(getWindow().getDecorView().getRootView(), "Tile close event received\n" + tileCloseData.toString() + "\n\n",
+                                Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
         }
     }
 
+    /*
+        TaskMesages is a helper class allows use to use the snack bar message in classes which use extends AsyncTask. Because
+         these use worker thread and we need access to the root view
+
+     */
+
+    private class TaskMesages{
+
+        public void removeTileMessage(){
+            snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Stopping app and removing Band Tile", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+
+        public void removeMesage(){
+            snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Removing Tile", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+
+
+
+        public void btOff(){
+            snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Band isn't connected. Please make sure bluetooth is on and the band is in range", Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
+
+        public void connected(){
+            snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Band is connected", Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }
+    }//end of Stop task message
+
+
     private class StartTask extends AsyncTask<Void, Void, Boolean> {
+
+        TaskMesages messages = new TaskMesages();
         @Override
         protected void onPreExecute() {
             //txtStatus.setText("");
@@ -154,12 +230,14 @@ public class MainActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             try {
                 if (getConnectedBandClient()) {
-                    appendToUI("Band is connected.\n");
+                   // appendToUI("Band is connected.\n");
+                    messages.connected();
                     if (addTile()) {
                         updatePages();
                     }
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    //appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    messages.btOff();
                     return false;
                 }
             } catch (BandException e) {
@@ -183,16 +261,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private class StopTask extends AsyncTask<Void, Void, Boolean> {
+        TaskMesages messages = new TaskMesages();
         @Override
         protected Boolean doInBackground(Void... params) {
-            appendToUI("Stopping demo and removing Band Tile\n");
+            //appendToUI("Stopping demo and removing Band Tile\n");
+
+            messages.removeTileMessage();
             try {
                 if (getConnectedBandClient()) {
-                    appendToUI("Removing Tile.\n");
+                    //appendToUI("Removing Tile.\n");
+                    messages.removeMesage();
                     removeTile();
                 } else {
-                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    //appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                    messages.btOff();
                 }
             } catch (BandException e) {
                 handleBandException(e);
@@ -208,7 +292,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                appendToUI("Stop completed.\n");
+               // appendToUI("Stop completed.\n");
+                snackbar = Snackbar
+                        .make(getWindow().getDecorView().getRootView(), "Stop completed.", Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
             btnStart.setEnabled(true);
         }
@@ -271,12 +358,21 @@ public class MainActivity extends AppCompatActivity {
         BandTile tile = new BandTile.Builder(tileId, "Button Tile", tileIcon)
                 .setPageLayouts(createButtonLayout())
                 .build();
-        appendToUI("Button Tile is adding ...\n");
+        //appendToUI("Button Tile is adding ...\n");
+        snackbar = Snackbar
+                .make(getWindow().getDecorView().getRootView(), "Button Tile is adding ...", Snackbar.LENGTH_SHORT);
+        snackbar.show();
         if (client.getTileManager().addTile(this, tile).await()) {
-            appendToUI("Button Tile is added.\n");
+            //appendToUI("Button Tile is added.\n");
+             snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Button Tile is added", Snackbar.LENGTH_SHORT);
+            snackbar.show();
             return true;
         } else {
-            appendToUI("Unable to add button tile to the band.\n");
+            //appendToUI("Unable to add button tile to the band.\n");
+             snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), "Unable to add button tile to the band", Snackbar.LENGTH_LONG);
+            snackbar.show();
             return false;
         }
     }
@@ -293,14 +389,20 @@ public class MainActivity extends AppCompatActivity {
                 new PageData(pageId1, 0)
                         .update(new FilledButtonData(12, Color.YELLOW))
                         .update(new TextButtonData(21, "Text Button")));
-       appendToUI("Send button page data to tile page \n\n");
+       //appendToUI("Send button page data to tile page \n\n");
+         snackbar = Snackbar
+                .make(getWindow().getDecorView().getRootView(), "Send button page data to tile page", Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
     private boolean getConnectedBandClient() throws InterruptedException, BandException {
         if (client == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
             if (devices.length == 0) {
-                appendToUI("Band isn't paired with your phone.\n");
+                //appendToUI("Band isn't paired with your phone.\n");
+                 snackbar = Snackbar
+                        .make(getWindow().getDecorView().getRootView(), "Band isn't paired with your phone.", Snackbar.LENGTH_LONG);
+                snackbar.show();
                 return false;
             }
             client = BandClientManager.getInstance().create(getBaseContext(), devices[0]);
@@ -309,8 +411,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //appendToUI("Band is connecting...\n");//////////////////////////////////////////////////////////////////////////////////////////
-        Snackbar snackbar = Snackbar
-               .make(getWindow().getDecorView().getRootView(), "Band is connecting", Snackbar.LENGTH_SHORT);//TODO change all appendToUI to snackbar
+         snackbar = Snackbar
+               .make(getWindow().getDecorView().getRootView(), "Band is connecting", Snackbar.LENGTH_SHORT);
         snackbar.show();
 
 

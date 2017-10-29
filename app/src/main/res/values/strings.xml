@@ -4,11 +4,23 @@
 
     <string name="startButton">Install</string>
     <string name="setUpText">Install or remove tile from band.</string>
-    <string name="allReadyLinked">Already installed choose history or latest.</string>
+    <string name="allReadyLinked">Choose history or latest.</string>
     <string name="done">Remove</string>
     <string name="latestShotPage">New</string>
 
     <string name="intent_key">new intent</string>
     <string name="intent_value">TileEventReceiver</string>
+    <string name="title_activity_new_shot">NewShot</string>
+    <string name="new_shot_heading">New Shot</string>
+    <string name="selectClub">Select Club</string>
+    <string name="selectSwing">Select Swing</string>
+    <!--intents-->
+    <!--Buttons-->
+    <!--Headings-->
+    <!--messages-->
+    <string name="try_to_save">Saving to cloud</string>
+
+    <!--Errors-->
+    <string name="couldNotSaveShotData">Error: Unable to save data to cloud</string>
 
 </resources>
