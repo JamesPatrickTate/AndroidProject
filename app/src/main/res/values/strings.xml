@@ -16,6 +16,15 @@
     <string name="selectSwing">Select Swing</string>
     <!--intents-->
     <!--Buttons-->
+    <string name="accStart">Start Swing</string>
+    <string name="accStop">End Swing</string>
+    <string name="distStart">Start Distance</string>
+    <string name="distEnd">End Distance</string>
+
+
+
+
+
     <!--Headings-->
     <!--messages-->
     <string name="try_to_save">Saving to cloud</string>

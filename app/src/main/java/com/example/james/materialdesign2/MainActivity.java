@@ -35,6 +35,7 @@ import com.microsoft.band.tiles.pages.FlowPanel;
 import com.microsoft.band.tiles.pages.FlowPanelOrientation;
 import com.microsoft.band.tiles.pages.PageData;
 import com.microsoft.band.tiles.pages.PageLayout;
+import com.microsoft.band.tiles.pages.ScrollFlowPanel;
 import com.microsoft.band.tiles.pages.TextButton;
 import com.microsoft.band.tiles.pages.TextButtonData;
 
@@ -54,10 +55,13 @@ import static com.example.james.materialdesign2.R.styleable.CoordinatorLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BandClient client = null;
+    protected BandClient client = null;
     private Button btnStart;
-    private static final UUID tileId = UUID.fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
-    private static final UUID pageId1 = UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
+    protected static final UUID tileId = UUID.fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
+    protected static final UUID pageId1 = UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
+    protected static final UUID pageId2 = UUID.fromString("f8508b88-bce8-11e7-abc4-cec278b6b50a");
+    protected static final UUID pageId3 = UUID.fromString("2195938e-bcea-11e7-abc4-cec278b6b50a");
+    protected static final UUID pageId4 = UUID.fromString("40075faa-bcea-11e7-abc4-cec278b6b50a");
     private TextView txtStatus;
     private ScrollView scrollView;
     private Button btnStop;
@@ -119,7 +123,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void openNewShot(View view) {
 
+//        try {
+//            // send a dialog to the Band for one of our tiles
+//             client.getNotificationManager().showDialog(tileId,
+//                     "Press Start Swing", "This will record your swing").await();
+//            } catch (BandException e) {
+//            System.out.println("Error couldnt send message to band");
+//             } catch (InterruptedException e) {
+//            System.out.println("Error couldnt send message to band");
+//        }
+
+
         Intent intent = new Intent(this, NewShot.class);
+
         startActivity(intent);
     }
 
@@ -153,10 +169,10 @@ public class MainActivity extends AppCompatActivity {
             super.onDestroy();
         }
 
-    private void processIntent(Intent intent){
+    protected void processIntent(Intent intent){
         String extraString = intent.getStringExtra(getString(R.string.intent_key));
 
-        if(extraString != null && extraString.equals(getString(R.string.intent_value))){// TODO: 25/10/2017 change UI Append
+        if(extraString != null && extraString.equals(getString(R.string.intent_value))){
             if (intent.getAction() == TileEvent.ACTION_TILE_OPENED) {
                 TileEvent tileOpenData = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
                 //appendToUI("Tile open event received\n" + tileOpenData.toString() + "\n\n");
@@ -188,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
      */
 
-    private class TaskMesages{
+     class TaskMesages{
 
         public void removeTileMessage(){
             snackbar = Snackbar
@@ -218,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }//end of Stop task message
 
 
-    private class StartTask extends AsyncTask<Void, Void, Boolean> {
+    protected class StartTask extends AsyncTask<Void, Void, Boolean> {
 
         TaskMesages messages = new TaskMesages();
         @Override
@@ -262,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class StopTask extends AsyncTask<Void, Void, Boolean> {
+    protected class StopTask extends AsyncTask<Void, Void, Boolean> {
         TaskMesages messages = new TaskMesages();
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -377,25 +393,62 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//    protected PageLayout createButtonLayout() {
+//        return new PageLayout(
+//        new FlowPanel(15, 0, 260, 105, FlowPanelOrientation.HORIZONTAL)
+//                .addElements(new FilledButton(0, 5, 210, 45).setMargins(0, 5, 0, 0).setId(12).setBackgroundColor(Color.RED))
+//                .addElements(new TextButton(0, 0, 210, 45).setMargins(0, 5, 0, 0).setId(21).setPressedColor(Color.BLUE)));
+//
+//
+//
+//    }
+//
+//
+//
+//
+//    protected void updatePages() throws BandIOException {
+//        client.getTileManager().setPages(tileId,
+//                new PageData(pageId1,  0)
+//                        .update(new FilledButtonData(12, Color.YELLOW))
+//                        .update(new TextButtonData(12, "Start Swing")));
+//
+//         snackbar = Snackbar
+//                .make(getWindow().getDecorView().getRootView(), "Send button page data to tile page", Snackbar.LENGTH_SHORT);
+//        snackbar.show();
+//    }
+    //////////
     private PageLayout createButtonLayout() {
         return new PageLayout(
-                new FlowPanel(15, 0, 260, 105, FlowPanelOrientation.VERTICAL)
-                        .addElements(new FilledButton(0, 5, 210, 45).setMargins(0, 5, 0, 0).setId(12).setBackgroundColor(Color.RED))
-                        .addElements(new TextButton(0, 0, 210, 45).setMargins(0, 5, 0, 0).setId(21).setPressedColor(Color.BLUE)));
+                new ScrollFlowPanel(15, 0, 260, 105, FlowPanelOrientation.HORIZONTAL
+
+                )
+                        .addElements(new TextButton(0, 0, 50, 90).setMargins(5, 5, 0, 0).setId(12).setPressedColor(Color.RED))
+                        .addElements(new TextButton(0, 0, 50, 90).setMargins(5, 5, 0, 0).setId(21).setPressedColor(Color.RED))
+                        .addElements(new TextButton(0, 0, 50, 90).setMargins(5, 5, 0, 0).setId(22).setPressedColor(Color.RED))
+                        .addElements(new TextButton(0, 0, 50, 90).setMargins(5, 5, 0, 0).setId(23).setPressedColor(Color.RED))
+        );
+
+
     }
 
     private void updatePages() throws BandIOException {
         client.getTileManager().setPages(tileId,
                 new PageData(pageId1, 0)
-                        .update(new FilledButtonData(12, Color.YELLOW))
-                        .update(new TextButtonData(21, "Text Button")));
-       //appendToUI("Send button page data to tile page \n\n");
-         snackbar = Snackbar
-                .make(getWindow().getDecorView().getRootView(), "Send button page data to tile page", Snackbar.LENGTH_SHORT);
-        snackbar.show();
+                       // .update(new FilledButtonData(12, Color.YELLOW))
+                        .update(new TextButtonData(12, "Start Swing"))
+                        .update(new TextButtonData(21, "End Swing"))
+                        .update(new TextButtonData(22, "Start Dist"))
+                        .update(new TextButtonData(23, "End Dist"))
+        );
+
+        snackbar = Snackbar
+               .make(getWindow().getDecorView().getRootView(), "Send button page data to tile page", Snackbar.LENGTH_SHORT);
+       snackbar.show();
     }
 
-    private boolean getConnectedBandClient() throws InterruptedException, BandException {
+    //////////
+
+    protected boolean getConnectedBandClient() throws InterruptedException, BandException {
         if (client == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
             if (devices.length == 0) {
@@ -427,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
         return ConnectionState.CONNECTED == client.connect().await();
     }
 
-    private void handleBandException(BandException e) {
+    protected void handleBandException(BandException e) {
         String exceptionMessage = "";
         switch (e.getErrorType()) {
             case DEVICE_ERROR:
