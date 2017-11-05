@@ -25,7 +25,10 @@
 
 
 
+
     <!--Headings-->
+    <string name="maxVelocity">Max Velocity :</string>
+    <string name="distanceHeading">Shot Distance :</string>
     <!--messages-->
     <string name="try_to_save">Saving to cloud</string>
 

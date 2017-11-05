@@ -5,6 +5,12 @@
     <!-- Changes for MS Band -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- <permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
+    <!-- <permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
+    <uses-feature android:name="android.hardware.location.gps" />
 
     <application
         android:allowBackup="true"
@@ -49,7 +55,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.james.materialdesign2.MainActivity" />
+            <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyAA3Amhps_Tgr3zGPKB2XqrtZK2VrFV8rY" />
+            />
         </activity>
+
+        <service android:enabled="true"
+            android:name="com.example.james.materialdesign2.DistanceAndLocationService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

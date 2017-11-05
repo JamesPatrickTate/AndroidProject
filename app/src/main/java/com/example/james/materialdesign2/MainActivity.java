@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton newShot;
     private FloatingActionButton statistics;
     private Intent myIntent;
+
+
 
 
     protected void onCreate(Bundle savedInstanceState) {
