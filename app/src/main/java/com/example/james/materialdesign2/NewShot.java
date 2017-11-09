@@ -1,40 +1,20 @@
 package com.example.james.materialdesign2;
 
 import android.Manifest;
-
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.microsoft.band.BandClient;
-import com.microsoft.band.BandClientManager;
-import com.microsoft.band.BandException;
-import com.microsoft.band.BandInfo;
-import com.microsoft.band.ConnectionState;
-import com.microsoft.band.sensors.BandAccelerometerEvent;
-import com.microsoft.band.sensors.BandAccelerometerEventListener;
-import com.microsoft.band.sensors.SampleRate;
-
-
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.location.Criteria;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,46 +23,39 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
+import com.microsoft.band.BandClient;
+import com.microsoft.band.BandClientManager;
+import com.microsoft.band.BandException;
+import com.microsoft.band.BandInfo;
+import com.microsoft.band.ConnectionState;
+import com.microsoft.band.sensors.BandAccelerometerEvent;
+import com.microsoft.band.sensors.BandAccelerometerEventListener;
+import com.microsoft.band.sensors.SampleRate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import dto.AccelerationEventCordinatesAndTime;
 import dto.ShotResultsDTO;
-
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.drive.*;
-
-import android.support.v4.app.FragmentActivity;
-
-import org.w3c.dom.Text;
+import dto.UserDTO;
 
 
 /**
@@ -91,89 +64,91 @@ import org.w3c.dom.Text;
 
 public class NewShot extends AppCompatActivity implements OnItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,LocationListener
+        GoogleApiClient.OnConnectionFailedListener, LocationListener
 
 
-    {
+{
 
-        //private static final String TAG = "NewShot";
-        private Spinner clubSelector;
-        private Spinner shotSelector;
-        private String club;
-        private String swingLength;
-        private int guid;//todo make unique
-        private ImageButton saveData;
-        private Snackbar snackbar;
-        float xVal, yVal, zVal;
-        private TextView txtStatus;
-        private Button accStart, accEnd, distStart, distEnd;
-        private ArrayList<AccelerationEventCordinatesAndTime> swingDataPoints = new ArrayList<>();
-        private TextView maxVelView;
-        private TextView sDist;
+    //private static final String TAG = "NewShot";
+    private Spinner clubSelector;
+    private Spinner shotSelector;
+    private String club;
+    private String swingLength;
+    private String UniqueShotID;//todo make unique
+    private ImageButton saveData;
+    private Snackbar snackbar;
+    float xVal, yVal, zVal;
+    private TextView txtStatus;
+    private Button accStart, accEnd, distStart, distEnd;
+    private ArrayList<AccelerationEventCordinatesAndTime> swingDataPoints = new ArrayList<>();
+    private TextView maxVelView;
+    private TextView sDist;
 
-        private double maxVel;
-        private double startLatitude;
-        private double startLongitude;
-        private double endLatitude;
-        private double endLongitude;
-        private double shotDistance;
-        static Location currentLocation, startLocation, endLocation;
+    private double maxVel;
+    private double startLatitude;
+    private double startLongitude;
+    private double endLatitude;
+    private double endLongitude;
+    private double shotDistance;
+    static Location currentLocation, startLocation, endLocation;
+    private  FirebaseUser currentFirebaseUser;
 
+    static final int REQUEST_LOCATION = 1;
+    public LocationManager locationManager;
 
-        static final int REQUEST_LOCATION = 1;
-        public LocationManager locationManager;
+    LocationListener locationListener, listener;
 
-        LocationListener locationListener, listener;
+    private BandClient client = null;
+    private static final UUID tileId = UUID.fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
+    private static final UUID pageId1 = UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
 
-        private BandClient client = null;
-        private static final UUID tileId = UUID.fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
-        private static final UUID pageId1 = UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
+    private TextView st;
+    private TextView en;
 
-        private TextView st;
-        private TextView en;
+    static Location lastLocation = null;
+    static double distanceInMetres = 0;
 
-        static Location lastLocation = null;
-        static double distanceInMetres = 0;
+    final String TAG = "GPS";
+    private long UPDATE_INTERVAL = 1000;  /* 1 sec */
+    private long FASTEST_INTERVAL = 500; /* 1/2 sec */
+    static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-        final String TAG = "GPS";
-        private long UPDATE_INTERVAL =  1000;  /* 1 sec */
-        private long FASTEST_INTERVAL = 500; /* 1/2 sec */
-        static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-
-        GoogleApiClient gac;
-        LocationRequest locationRequest;
-        TextView tvLatitude, tvLongitude, tvTime;
-
-
-        private BandAccelerometerEventListener mAccelerometerEventListener = new BandAccelerometerEventListener() {
-            @Override
-            public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
-
-                //create data transfer object for event
-                AccelerationEventCordinatesAndTime swingDataPoint = new AccelerationEventCordinatesAndTime();
-
-                if (event != null) {
-                    xVal = event.getAccelerationX();
-                    yVal = event.getAccelerationY();
-                    zVal = event.getAccelerationZ();
-
-                    swingDataPoint.setX(xVal);
-                    swingDataPoint.setY(yVal);
-                    swingDataPoint.setZ(zVal);
-                    swingDataPoint.setTime(System.currentTimeMillis());
-                    swingDataPoints.add(swingDataPoint);
+    GoogleApiClient gac;
+    LocationRequest locationRequest;
+    TextView tvLatitude, tvLongitude, tvTime;
 
 
-                    appendToUI(String.format(" Acceleration Values:: X = %.0f hz  Y = %.0f hz   Z = %.1f hz  ", xVal, yVal, zVal, swingDataPoint));
-                }
-            }
-        };
-
-        ///////////////////////////////////////////////
-
-
+    private BandAccelerometerEventListener mAccelerometerEventListener = new BandAccelerometerEventListener() {
         @Override
-        protected void onCreate (Bundle savedInstanceState){
+        public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
+
+            //create data transfer object for event
+            AccelerationEventCordinatesAndTime swingDataPoint = new AccelerationEventCordinatesAndTime();
+
+            if (event != null) {
+                xVal = event.getAccelerationX();
+                yVal = event.getAccelerationY();
+                zVal = event.getAccelerationZ();
+
+                swingDataPoint.setX(xVal);
+                swingDataPoint.setY(yVal);
+                swingDataPoint.setZ(zVal);
+                swingDataPoint.setTime(System.currentTimeMillis());
+                swingDataPoints.add(swingDataPoint);
+
+
+                appendToUI(String.format(" Acceleration Values:: X = %.0f hz  Y = %.0f hz   Z = %.1f hz  ", xVal, yVal, zVal, swingDataPoint));
+            }
+        }
+    };
+
+    ///////////////////////////////////////////////
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        UniqueShotID = "testValue";
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_shot);
@@ -186,7 +161,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
 
 
-        
+
 
 
 
@@ -298,7 +273,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
         tvLatitude = (TextView) findViewById(R.id.tvLatitude);
         tvLongitude = (TextView) findViewById(R.id.tvLongitude);
-       // tvTime = (TextView) findViewById(R.id.tvTime);
+        // tvTime = (TextView) findViewById(R.id.tvTime);
 
         isGooglePlayServicesAvailable();
 
@@ -316,36 +291,40 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 .build();
 
 
-            distStart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startLocation = currentLocation;
+        distStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startLocation = currentLocation;
+                if(startLocation != null) {
+
                     startLatitude = startLocation.getLatitude();
                     startLongitude = startLocation.getLongitude();
-                    tvLatitude.setText("sla:"+startLatitude+", slo:"+startLongitude);
-
+                    tvLatitude.setText("sla:" + startLatitude + ", slo:" + startLongitude);
+                }else {
+                    Toast.makeText(NewShot.this, "Location local failed please wait!", Toast.LENGTH_LONG).show();
                 }
-            });
 
-            sDist = (TextView) findViewById(R.id.distval);
+            }
+        });
 
-            distEnd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    endLocation = currentLocation;
-                    endLatitude = endLocation.getLatitude();
-                    endLongitude = endLocation.getLongitude();
-                    tvLongitude.setText("ela:"+endLatitude+", elo:"+endLongitude);
+        sDist = (TextView) findViewById(R.id.distval);
 
-                    shotDistance = startLocation.distanceTo(endLocation);
-                    //shotDistance = ;
-                    shotDistance = round(shotDistance, 3);
-                    sDist.setText(shotDistance+"m");
+        distEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                endLocation = currentLocation;
+                endLatitude = endLocation.getLatitude();
+                endLongitude = endLocation.getLongitude();
+                tvLongitude.setText("ela:" + endLatitude + ", elo:" + endLongitude);
 
-                }
-            });
+                shotDistance = startLocation.distanceTo(endLocation);
+                //shotDistance = ;
+                shotDistance = round(shotDistance, 3);
+                sDist.setText(shotDistance + "m");
 
-
+            }
+        });
 
 
         /////////////////////////
@@ -369,150 +348,153 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     }//on create end
 
-        /**
-         * reduce the length of the distnce variabole to 3 decimal places
-         * @param value
-         * @param places
-         * @return
-         */
-        private static double round(double value, int places) {
-            if (places < 0) throw new IllegalArgumentException();
+    /**
+     * reduce the length of the distnce variabole to 3 decimal places
+     *
+     * @param value
+     * @param places
+     * @return
+     */
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
 
-            BigDecimal bd = new BigDecimal(Double.toString(value));
-            bd = bd.setScale(places, RoundingMode.HALF_UP);
-            return bd.doubleValue();
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    /**
+     * Distance and location methods
+     */
+
+    @Override
+    protected void onStart() {
+        gac.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        gac.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            // updateUI(location);
+            currentLocation = location;
         }
+    }
 
-        /**
-         * Distance and location methods
-         */
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(NewShot.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
-        @Override
-        protected void onStart() {
-            gac.connect();
-            super.onStart();
+            return;
         }
+        Log.d(TAG, "onConnected");
 
-        @Override
-        protected void onStop() {
-            gac.disconnect();
-            super.onStop();
-        }
+        Location ll = LocationServices.FusedLocationApi.getLastLocation(gac);
+        Log.d(TAG, "LastLocation: " + (ll == null ? "NO LastLocation" : ll.toString()));
 
-        @Override
-        public void onLocationChanged(Location location) {
-            if (location != null) {
-               // updateUI(location);
-                currentLocation = location;
-            }
-        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(gac, locationRequest, this);
+        //locationManager.requestLocationUpdates(gac,1,1,this);
+    }
 
-        @Override
-        public void onConnected(@Nullable Bundle bundle) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(NewShot.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(NewShot.this, "Permission was granted!", Toast.LENGTH_LONG).show();
+
+                    try {
+                        LocationServices.FusedLocationApi.requestLocationUpdates(
+                                gac, locationRequest, this);
+                    } catch (SecurityException e) {
+                        Toast.makeText(NewShot.this, "SecurityException:\n" + e.toString(), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(NewShot.this, "Permission denied!", Toast.LENGTH_LONG).show();
+                }
                 return;
             }
-            Log.d(TAG, "onConnected");
-
-            Location ll = LocationServices.FusedLocationApi.getLastLocation(gac);
-            Log.d(TAG, "LastLocation: " + (ll == null ? "NO LastLocation" : ll.toString()));
-
-            LocationServices.FusedLocationApi.requestLocationUpdates(gac, locationRequest, this);
         }
+    }
 
-        @Override
-        public void onRequestPermissionsResult(
-                int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
 
-            switch (requestCode) {
-                case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                    // If request is cancelled, the result arrays are empty.
-                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(NewShot.this, "Permission was granted!", Toast.LENGTH_LONG).show();
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(NewShot.this, "onConnectionFailed: \n" + connectionResult.toString(),
+                Toast.LENGTH_LONG).show();
+        Log.d("DDD", connectionResult.toString());
+    }
 
-                        try{
-                            LocationServices.FusedLocationApi.requestLocationUpdates(
-                                    gac, locationRequest, this);
-                        } catch (SecurityException e) {
-                            Toast.makeText(NewShot.this, "SecurityException:\n" + e.toString(), Toast.LENGTH_LONG).show();
-                        }
-                    } else {
-                        Toast.makeText(NewShot.this, "Permission denied!", Toast.LENGTH_LONG).show();
+//    private void updateUI(Location loc) {
+//        Log.d(TAG, "updateUI");
+////            tvLatitude.setText(Double.toString(loc.getLatitude()));
+////            tvLongitude.setText(Double.toString(loc.getLongitude()));
+//        //tvTime.setText(DateFormat.getTimeInstance().format(loc.getTime()));
+//    }
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    private boolean isGooglePlayServicesAvailable() {
+        final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.d(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        Log.d(TAG, "This device is supported.");
+        return true;
+    }
+
+    private void showAlert() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enable Location")
+                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
+                        "use this app")
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(myIntent);
                     }
-                    return;
-                }
-            }
-        }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
 
-        @Override
-        public void onConnectionSuspended(int i) {}
-
-        @Override
-        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-            Toast.makeText(NewShot.this, "onConnectionFailed: \n" + connectionResult.toString(),
-                    Toast.LENGTH_LONG).show();
-            Log.d("DDD", connectionResult.toString());
-        }
-
-        private void updateUI(Location loc) {
-            Log.d(TAG, "updateUI");
-//            tvLatitude.setText(Double.toString(loc.getLatitude()));
-//            tvLongitude.setText(Double.toString(loc.getLongitude()));
-            //tvTime.setText(DateFormat.getTimeInstance().format(loc.getTime()));
-        }
-
-        private boolean isLocationEnabled() {
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        }
-
-        private boolean isGooglePlayServicesAvailable() {
-            final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-            GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-            int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
-            if (resultCode != ConnectionResult.SUCCESS) {
-                if (apiAvailability.isUserResolvableError(resultCode)) {
-                    apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                            .show();
-                } else {
-                    Log.d(TAG, "This device is not supported.");
-                    finish();
-                }
-                return false;
-            }
-            Log.d(TAG, "This device is supported.");
-            return true;
-        }
-
-        private void showAlert() {
-            final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle("Enable Location")
-                    .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
-                            "use this app")
-                    .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(myIntent);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-                        }
-                    });
-            dialog.show();
-        }
+                    }
+                });
+        dialog.show();
+    }
 //////////////////////////////////////////////////////////////
 
 
@@ -522,20 +504,26 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     public void onSaveClicked() {
         club = clubSelector.getSelectedItem().toString();
         swingLength = shotSelector.getSelectedItem().toString();
-        guid = 2;
+
         // create a DTO to hold our shotData information.
         ShotResultsDTO shotData = new ShotResultsDTO();
-
+        currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        //String s = currentFirebaseUser;
         // populate the shotData with values from the screen.
         shotData.setClub(club);
         shotData.setSwingLength(swingLength);
-        shotData.setGuid(guid);
+        shotData.setUserID(currentFirebaseUser.getUid());
         shotData.setShotDistance(shotDistance);
         shotData.setShotVelocity(maxVel);
         shotData.setStartLatitude(startLatitude);
         shotData.setStartLongitude(startLongitude);
         shotData.setEndLatitude(endLatitude);
         shotData.setEndLongitude(endLongitude);
+
+        //unique shot id
+        Date dNow = new Date( );
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        UniqueShotID = formatter.format(dNow);
 
 
         // save the shotData.
@@ -544,7 +532,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = database.getReference();
-            databaseReference.child("foo").push().setValue(shotData);
+            databaseReference.child("shot/" + UniqueShotID).setValue(shotData);
+            //databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -555,6 +545,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     /**
      * Spinner related methods.
+     *
      * @param parent
      * @param view
      * @param position
@@ -566,8 +557,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         String item = parent.getItemAtPosition(position).toString();
 
         // Showing selected spinner item
-       // Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        // Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
     }
+
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
     }
@@ -634,10 +626,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     }
 
 
-
-    }
-
-
+}
 
 
 //////////////////////////////////////////////////////

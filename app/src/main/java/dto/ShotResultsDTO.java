@@ -14,7 +14,7 @@ public class ShotResultsDTO {
 
     private String club;
     private String swingLength;
-    private  int guid;
+    private  String userID;
     private double shotDistance;
     private double shotVelocity;
     private double StartLatitude;
@@ -86,18 +86,18 @@ public class ShotResultsDTO {
         this.swingLength = swingLength;
     }
 
-    public int getGuid() {
-        return guid;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setGuid(int guid) {
-        this.guid = guid;
+    public void setUserID (String userID){
+        this.userID = userID;
     }
 
 
 
     public String toString() {
-        return club+":"+swingLength+":"+guid;
+        return club+":"+swingLength+":"+userID;
 
     }
 

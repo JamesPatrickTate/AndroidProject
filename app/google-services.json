@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "546728489926-iecos9k0fnmc3asb2vetacgkakjl1n1p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.james.materialdesign2",
+            "certificate_hash": "f63da4a171a75d7ab6efb22ba974f2a79577f57e"
+          }
+        },
+        {
           "client_id": "546728489926-7sla4dtmnvafq8ukm0j6o00e78sb65nb.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "546728489926-7sla4dtmnvafq8ukm0j6o00e78sb65nb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
