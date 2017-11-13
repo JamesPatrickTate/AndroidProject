@@ -9,7 +9,18 @@ public class UserDTO {
     private String ID;
 
 
+    public UserDTO(){
+        //empty constructor
+        /*
+            from docs https://firebase.google.com/docs/database/android/read-and-write
+            If you use a Java object, the contents of your object are
+             automatically mapped to child locations in a
+             nested fashion.
+             Using a Java object also typically makes your code more
+              readable and easier to maintain.
 
+         */
+    }
 
     public String getEmail() {
         return email;

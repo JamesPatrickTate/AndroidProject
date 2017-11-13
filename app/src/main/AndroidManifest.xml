@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.james.materialdesign2">
 
+    <!-- AIzaSyAadahCq18nQsYTwPryWq_jI5CcZ50l3PQ -->
     <!-- Changes for MS Band -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE" />
@@ -31,7 +32,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
         </activity>
 
@@ -56,21 +57,19 @@
             android:name=".NewShot"
             android:label="@string/title_activity_new_shot"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.james.materialdesign2.MainActivity" />
-            <meta-data
-                android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyAA3Amhps_Tgr3zGPKB2XqrtZK2VrFV8rY" />
-            />
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.example.james.materialdesign2.MainActivity" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAA3Amhps_Tgr3zGPKB2XqrtZK2VrFV8rY" />
+        />
         <service
             android:name=".DistanceAndLocationService"
             android:enabled="true"
             android:exported="false" />
-
 
         <activity
             android:name=".Auth"
@@ -85,7 +84,17 @@
         <activity
             android:name=".BaseActivity"
             android:label="@string/title_activity_base"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ShotDataDisplay" />
+        <activity
+            android:name=".tester"
+            android:label="@string/title_activity_tester"
+            android:parentActivityName=".ShotDataDisplay"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.james.materialdesign2.ShotDataDisplay" />
+        </activity>
     </application>
 
 </manifest>

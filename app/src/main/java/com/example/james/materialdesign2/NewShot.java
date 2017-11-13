@@ -318,10 +318,17 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 endLongitude = endLocation.getLongitude();
                 tvLongitude.setText("ela:" + endLatitude + ", elo:" + endLongitude);
 
-                shotDistance = startLocation.distanceTo(endLocation);
+                //shotDistance = startLocation.distanceTo(endLocation);
                 //shotDistance = ;
-                shotDistance = round(shotDistance, 3);
-                sDist.setText(shotDistance + "m");
+                //shotDistance = round(shotDistance, 3);
+
+                float[] t = new float[5];
+                Location.distanceBetween(startLatitude,startLongitude,endLatitude,endLongitude,t);
+                shotDistance =t[0];
+                sDist.setText(shotDistance + "m\n");
+
+                tvLongitude.setText("accuracy:"+endLocation.getAccuracy());
+                //tvLatitude.setText("bet:"+t[0]);
 
             }
         });
@@ -342,6 +349,10 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 snackbar.show();
 
                 onSaveClicked();
+
+                //Intent intent = new Intent(NewShot.this, ShotResults.class);
+
+               // startActivity(intent);
             }
         });
 

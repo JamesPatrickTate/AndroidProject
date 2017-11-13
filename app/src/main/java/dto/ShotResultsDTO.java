@@ -3,6 +3,8 @@ package dto;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.Serializable;
+
 /**
  * Created by james on 28/10/2017.
  *
@@ -10,7 +12,7 @@ import com.google.firebase.database.FirebaseDatabase;
  * see https://www.youtube.com/watch?v=ZLyJLGkcvFM
  */
 
-public class ShotResultsDTO {
+public class ShotResultsDTO implements Serializable {
 
     private String club;
     private String swingLength;
@@ -21,6 +23,12 @@ public class ShotResultsDTO {
     private double StartLongitude;
     private double endLatitude;
     private double endLongitude;
+
+
+
+    public ShotResultsDTO(){
+        //empty constructor
+    }
 
     public double getShotDistance() {
         return shotDistance;
@@ -96,9 +104,18 @@ public class ShotResultsDTO {
 
 
 
+    @Override
     public String toString() {
-        return club+":"+swingLength+":"+userID;
-
+        return "ShotResultsDTO{" +
+                "club='" + club + '\'' +
+                ", swingLength='" + swingLength + '\'' +
+                ", shotDistance=" + shotDistance +
+                ", shotVelocity=" + shotVelocity +
+                ", StartLatitude=" + StartLatitude +
+                ", StartLongitude=" + StartLongitude +
+                ", endLatitude=" + endLatitude +
+                ", endLongitude=" + endLongitude +
+                '}';
     }
 
 

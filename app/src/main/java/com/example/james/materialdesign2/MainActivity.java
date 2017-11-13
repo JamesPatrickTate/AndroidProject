@@ -91,6 +91,15 @@ public class MainActivity extends AppCompatActivity {
         newShot = (FloatingActionButton) findViewById(R.id.newShot);
         statistics = (FloatingActionButton) findViewById(R.id.staistics);
 
+        statistics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                openShotData(statistics);
+
+            }
+        });
+
 
 
         btnStart.setOnClickListener(new View.OnClickListener() {
@@ -126,18 +135,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void openNewShot(View view) {
 
-//        try {
-//            // send a dialog to the Band for one of our tiles
-//             client.getNotificationManager().showDialog(tileId,
-//                     "Press Start Swing", "This will record your swing").await();
-//            } catch (BandException e) {
-//            System.out.println("Error couldnt send message to band");
-//             } catch (InterruptedException e) {
-//            System.out.println("Error couldnt send message to band");
-//        }
 
 
         Intent intent = new Intent(this, NewShot.class);
+
+        startActivity(intent);
+    }
+
+    private void openShotData(View view) {
+
+        Intent intent = new Intent(this, ShotDataDisplay.class);
 
         startActivity(intent);
     }
