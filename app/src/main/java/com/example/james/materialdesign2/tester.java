@@ -1,6 +1,7 @@
 package com.example.james.materialdesign2;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -23,13 +24,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 
 import org.w3c.dom.Text;
 
 import dto.ShotResultsDTO;
 
-public class tester extends AppCompatActivity implements OnMapReadyCallback{
+public class tester extends AppCompatActivity implements OnMapReadyCallback
+        {
     TextView t;
     GoogleMap mGoogleMap;
     MapView mapView;
@@ -92,10 +96,23 @@ public class tester extends AppCompatActivity implements OnMapReadyCallback{
         //maps
 
         mGoogleMap = googleMap;
-        MapsInitializer.initialize(this);//new latlang(chosenSHot.getStartLatitude(),chosenSHot.getStartLatitude()
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(chosenSHot.getStartLatitude(),chosenSHot.getStartLatitude())));
-        CameraPosition loc = CameraPosition.builder().target(new LatLng(chosenSHot.getStartLatitude(),chosenSHot.getStartLatitude())).zoom(16).bearing(0).tilt(45).build();
+        MapsInitializer.initialize(this);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+//        googleMap.addMarker(new MarkerOptions().position(new LatLng(chosenSHot.getStartLatitude(),chosenSHot.getStartLatitude())));
+//        CameraPosition loc = CameraPosition.builder().target(new LatLng(chosenSHot.getStartLatitude(),chosenSHot.getStartLatitude())).zoom(16).bearing(0).tilt(45).build();
+        LatLng start = new LatLng(chosenSHot.getStartLatitude(), chosenSHot.getStartLongitude());
+        LatLng end = new LatLng(chosenSHot.getEndLatitude(), chosenSHot.getEndLongitude());
+        googleMap.addMarker(new MarkerOptions().position(start)).setTitle("Start");
+        googleMap.addMarker(new MarkerOptions().position(end)).setTitle("Finish");
+
+        googleMap.addPolyline(new PolylineOptions().color(0xFFFF0000)
+                .clickable(false)
+                .add(start, end));
+
+
+        CameraPosition loc = CameraPosition.builder().target(start).zoom(18).bearing(0).tilt(45).build();
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(loc));
+
+
     }
 }

@@ -106,16 +106,10 @@ public class ShotResultsDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "ShotResultsDTO{" +
-                "club='" + club + '\'' +
-                ", swingLength='" + swingLength + '\'' +
-                ", shotDistance=" + shotDistance +
-                ", shotVelocity=" + shotVelocity +
-                ", StartLatitude=" + StartLatitude +
-                ", StartLongitude=" + StartLongitude +
-                ", endLatitude=" + endLatitude +
-                ", endLongitude=" + endLongitude +
-                '}';
+        return   "Club:     "+club+"\n\n"
+                +"Swing:    "+swingLength+"\n\n"
+                +"Velocity: "+shotVelocity+"m/s \n\n"
+                +"Distance: "+shotDistance+"m \n\n";
     }
 
 
