@@ -1,5 +1,23 @@
 package com.example.james.materialdesign2;
 
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,6 +28,7 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
@@ -54,7 +73,7 @@ import static com.example.james.materialdesign2.R.styleable.CoordinatorLayout;
 
 /////////////////////////////////////////////////////////////////
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener{
 
     protected BandClient client = null;
     private Button btnStart;
@@ -70,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton newShot;
     private FloatingActionButton statistics;
     private Intent myIntent;
+    private Toolbar mToolbar;
+    private FragmentDrawer drawerFragment;
 
 
 
@@ -84,18 +105,34 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        statistics = (FloatingActionButton) findViewById(R.id.staistics);
+
+        drawerFragment = (FragmentDrawer)
+                getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), mToolbar);
+
+        drawerFragment.setDrawerListener(this);
+
+
+
         btnStart = (Button) findViewById(R.id.startButton);
         btnStop = (Button) findViewById(R.id.done);
         txtStatus = (TextView) findViewById(R.id.txtStatus);
         scrollView = (ScrollView) findViewById(R.id.svTest);
         newShot = (FloatingActionButton) findViewById(R.id.newShot);
-        statistics = (FloatingActionButton) findViewById(R.id.staistics);
+
 
         statistics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                openShotData(statistics);
+                //openShotData(statistics);
+
+
 
             }
         });
@@ -136,8 +173,11 @@ public class MainActivity extends AppCompatActivity {
     private void openNewShot(View view) {
 
 
+        Bundle bundle = getIntent().getExtras();
+        String userEmail = bundle.getString("Email");
 
         Intent intent = new Intent(this, NewShot.class);
+        intent.putExtra("Email", userEmail);
 
         startActivity(intent);
     }
@@ -538,6 +578,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+        displayView(position);
+    }
+
+    private void displayView(int position) {
+        Fragment fragment = null;
+        String title = getString(R.string.app_name);
+        Intent intent;
+        switch (position) {
+            case 0:
+             intent = new Intent(this, ShotDataDisplay.class);
+                startActivity(intent);
+
+                break;
+            case 1:
+                 intent = new Intent(this, ShotDataDisplay.class);
+                startActivity(intent);
+            case 2:
+//                fragment = new MessagesFragment();
+//                title = getString(R.string.title_messages);
+                break;
+            default:
+                break;
+        }
+
+        if (fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.container_body, fragment);
+            fragmentTransaction.commit();
+
+            // set the toolbar title
+            getSupportActionBar().setTitle(title);
+        }
     }
 
 

@@ -88,6 +88,7 @@ public class Auth extends BaseActivity implements
 
                             //creat data object
                             userDTO = new UserDTO();
+                            //userDTO.setID(user.getEmail());
                             userDTO.setID(user.getUid());
                             userDTO.setEmail(user.getEmail());
                             //userDTO.setName();//todo create a field for name
@@ -130,8 +131,9 @@ public class Auth extends BaseActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
 
+                            String userEmail = user.getEmail();
                             Intent intent = new Intent(Auth.this, MainActivity.class);
-
+                            intent.putExtra("Email", userEmail);
                             startActivity(intent);
 
                         } else {

@@ -222,7 +222,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        //todo add acceleration and distance  to a service
         txtStatus = (TextView) findViewById(R.id.txtStatus);
         /// acceleration for swing on and off
         accStart.setOnClickListener(new View.OnClickListener() {
@@ -539,12 +539,19 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
         // save the shotData.
         try {
-            // specimenDAO.save(shotData);
+            // specimenDAO.save(shotData);#
+            Bundle bundle = getIntent().getExtras();
+            String userEmail = bundle.getString("Email");
+            //Toast.makeText(this, "email: "+userEmail, Toast.LENGTH_LONG).show();
+
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = database.getReference();
-            databaseReference.child("shot/" + UniqueShotID).setValue(shotData);
-            //databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
+            //databaseReference.child("shot/"+userEmail+"/" + UniqueShotID).setValue(shotData);
+//            String dbShotLocation= "shots/"+userEmail+"/"+UniqueShotID;
+//            Toast.makeText(this, dbShotLocation, Toast.LENGTH_LONG).show();
+//            databaseReference.child(dbShotLocation).push().setValue(shotData);
+            databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
 
 
         } catch (Exception e) {
