@@ -41,7 +41,7 @@ public class Auth extends BaseActivity implements
         setContentView(R.layout.activity_auth);
 
         // Views
-//        mStatusTextView = (TextView) findViewById(R.id.status);
+       //mStatusTextView = (TextView) findViewById(R.id.status);//todo add message for failed login to auth screen
 //        mDetailTextView = (TextView) findViewById(R.id.detail);
         mEmailField = (EditText) findViewById(R.id.field_email);
         mPasswordField = (EditText) findViewById(R.id.field_password);

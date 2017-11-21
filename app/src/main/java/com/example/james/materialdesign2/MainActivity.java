@@ -598,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
                 break;
             case 1:
-                 intent = new Intent(this, ShotDataDisplay.class);
+                 intent = new Intent(this, ShotAverages.class);
                 startActivity(intent);
             case 2:
 //                fragment = new MessagesFragment();

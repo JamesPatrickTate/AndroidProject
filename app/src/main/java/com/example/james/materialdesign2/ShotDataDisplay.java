@@ -59,10 +59,11 @@ public class ShotDataDisplay extends ListActivity  {
 
 
         FirebaseAuth mAuth;
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        String email = user.getEmail();
-        databaseReference.child("shot/").addValueEventListener(new ValueEventListener() {
+       mAuth = FirebaseAuth.getInstance();
+       FirebaseUser currentFirebaseUser = mAuth.getCurrentUser();
+
+        databaseReference.child("shot/"+currentFirebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        //databaseReference.child("shot/").addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -82,8 +83,10 @@ public class ShotDataDisplay extends ListActivity  {
                 for (DataSnapshot child: children) {
                     String sid = child.getKey();
                     ShotResultsDTO s = child.getValue(ShotResultsDTO.class);
-                  //  Log.d(tag,"id"+ sid.toString());
-                   // Log.d(tag,"Shotresults dto"+ s.toString());
+
+
+                    Log.d(tag,"id"+ sid.toString());
+                    Log.d(tag,"Shotresults dto"+ s.toString());
                     allSHotData.add(s);
                     shotIds.add(sid);
 

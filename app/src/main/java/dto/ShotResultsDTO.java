@@ -24,10 +24,20 @@ public class ShotResultsDTO implements Serializable {
     private double endLatitude;
     private double endLongitude;
 
+    private double gsr;
+
 
 
     public ShotResultsDTO(){
         //empty constructor
+    }
+
+    public double getGsr() {
+        return gsr;
+    }
+
+    public void setGsr(double gsr) {
+        this.gsr = gsr;
     }
 
     public double getShotDistance() {
@@ -109,7 +119,9 @@ public class ShotResultsDTO implements Serializable {
         return   "Club:     "+club+"\n\n"
                 +"Swing:    "+swingLength+"\n\n"
                 +"Velocity: "+shotVelocity+"m/s \n\n"
-                +"Distance: "+shotDistance+"m \n\n";
+                +"Distance: "+shotDistance+"m \n\n"
+                +"Stress Indcators: \\n" +
+                "GSR::"+gsr+" ohm";
     }
 
 

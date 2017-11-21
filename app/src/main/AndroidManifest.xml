@@ -95,6 +95,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.james.materialdesign2.ShotDataDisplay" />
         </activity>
+        <activity
+            android:name=".ShotAverages"
+            android:label="@string/title_activity_shot_averages"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.james.materialdesign2.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

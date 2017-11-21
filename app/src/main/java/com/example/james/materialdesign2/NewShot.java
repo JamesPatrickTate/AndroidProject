@@ -40,6 +40,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandException;
+import com.microsoft.band.BandIOException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
@@ -55,6 +56,8 @@ import java.util.List;
 import java.util.UUID;
 import dto.AccelerationEventCordinatesAndTime;
 import dto.ShotResultsDTO;
+import com.microsoft.band.sensors.BandGsrEvent;
+import com.microsoft.band.sensors.BandGsrEventListener;
 import dto.UserDTO;
 
 
@@ -118,6 +121,23 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     TextView tvLatitude, tvLongitude, tvTime;
 
 
+    boolean startRecordingDataPoints = false;
+    double gsrValue = 0.0;
+    ////////////////////////
+
+//    private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
+//        @Override
+//        public void onBandGsrChanged(final BandGsrEvent event) {
+//            if (event != null) {
+//                gsrValue = event.getResistance();
+//                tvLatitude.setText("gsr:" + event.getResistance());
+//
+//            }
+//        }
+//    };
+
+    ////////////////////////
+
     private BandAccelerometerEventListener mAccelerometerEventListener = new BandAccelerometerEventListener() {
         @Override
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
@@ -142,11 +162,14 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         }
     };
 
+
+
     ///////////////////////////////////////////////
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //new GsrSubscriptionTask().execute();
 
         UniqueShotID = "testValue";
 
@@ -228,11 +251,22 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         accStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+//                try {
+//                    client.getSensorManager().unregisterGsrEventListener(mGsrEventListener);
+//                } catch (BandIOException e) {
+//                    System.out.println("Error disconnecting GSR listener");
+//                }
+                startRecordingDataPoints = true;
                 txtStatus.setText("");
+
+
                 new AccelerometerSubscriptionTask().execute();
                 snackbar = Snackbar
                         .make(getWindow().getDecorView().getRootView(), "Swing Record ON.", Snackbar.LENGTH_SHORT);
                 snackbar.show();
+
+
 
             }
         });
@@ -240,12 +274,16 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         accEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 try {
                     client.disconnect().await();
                 } catch (Exception exception) {
 
                     System.out.println("Error disconnecting acceleration listener");
                 }
+
+
 
                 maxVelView = (TextView) findViewById(R.id.mavValue);
 
@@ -300,7 +338,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
                     startLatitude = startLocation.getLatitude();
                     startLongitude = startLocation.getLongitude();
-                    tvLatitude.setText("sla:" + startLatitude + ", slo:" + startLongitude);
+                    //tvLatitude.setText("sla:" + startLatitude + ", slo:" + startLongitude);
                 }else {
                     Toast.makeText(NewShot.this, "Location local failed please wait!", Toast.LENGTH_LONG).show();
                 }
@@ -530,6 +568,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setStartLongitude(startLongitude);
         shotData.setEndLatitude(endLatitude);
         shotData.setEndLongitude(endLongitude);
+        shotData.setGsr(gsrValue);
 
         //unique shot id
         Date dNow = new Date( );
@@ -547,12 +586,11 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = database.getReference();
-            //databaseReference.child("shot/"+userEmail+"/" + UniqueShotID).setValue(shotData);
-//            String dbShotLocation= "shots/"+userEmail+"/"+UniqueShotID;
-//            Toast.makeText(this, dbShotLocation, Toast.LENGTH_LONG).show();
-//            databaseReference.child(dbShotLocation).push().setValue(shotData);
-            databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
+            //databaseReference.child("shot/"+UniqueShotID).setValue(shotData);
 
+           //expirement
+            databaseReference.child("shot/"+currentFirebaseUser.getUid()+"/"+UniqueShotID).setValue(shotData);
+//            databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -642,6 +680,47 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
         return ConnectionState.CONNECTED == client.connect().await();
     }
+
+
+
+
+//    private class GsrSubscriptionTask extends AsyncTask<Void, Void, Void> {
+//        @Override
+//        protected Void doInBackground(Void... params) {
+//            try {
+//                if (getConnectedBandClient()) {
+//                    int hardwareVersion = Integer.parseInt(client.getHardwareVersion().await());
+//                    if (hardwareVersion >= 20) {
+//                        appendToUI("Band is connected.\n");
+//                        client.getSensorManager().registerGsrEventListener(mGsrEventListener);
+//                    } else {
+//                        appendToUI("The Gsr sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
+//                    }
+//                } else {
+//                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+//                }
+//            } catch (BandException e) {
+//                String exceptionMessage="";
+//                switch (e.getErrorType()) {
+//                    case UNSUPPORTED_SDK_VERSION_ERROR:
+//                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+//                        break;
+//                    case SERVICE_ERROR:
+//                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+//                        break;
+//                    default:
+//                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+//                        break;
+//                }
+//                appendToUI(exceptionMessage);
+//
+//            } catch (Exception e) {
+//                appendToUI(e.getMessage());
+//            }
+//            return null;
+//        }
+//    }
+
 
 
 }
