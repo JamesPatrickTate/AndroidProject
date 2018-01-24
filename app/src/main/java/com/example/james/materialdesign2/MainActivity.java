@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     private Button btnStop;
     private Snackbar snackbar;
     private FloatingActionButton newShot;
-    private FloatingActionButton statistics;
+    private FloatingActionButton stats;
     private Intent myIntent;
     private Toolbar mToolbar;
     private FragmentDrawer drawerFragment;
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        statistics = (FloatingActionButton) findViewById(R.id.staistics);
+
 
         drawerFragment = (FragmentDrawer)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
@@ -126,16 +126,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         newShot = (FloatingActionButton) findViewById(R.id.newShot);
 
 
-        statistics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                //openShotData(statistics);
-
-
-
-            }
-        });
 
 
 
@@ -157,11 +148,21 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             }
         });
 
-
+        newShot = (FloatingActionButton) findViewById(R.id.newShot);
         newShot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 openNewShot(newShot);
+            }
+        });
+
+
+        stats = (FloatingActionButton) findViewById(R.id.stats);
+        stats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSuggestions(stats);
             }
         });
 
@@ -169,6 +170,13 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
     }//end of onCreate
+
+    private void openSuggestions(View view) {
+
+        Intent intent = new Intent(this, ClubSuggestion.class);
+
+        startActivity(intent);
+    }
 
     private void openNewShot(View view) {
 

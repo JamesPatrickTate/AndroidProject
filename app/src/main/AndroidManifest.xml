@@ -104,6 +104,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.james.materialdesign2.MainActivity" />
         </activity>
+        <activity
+            android:name=".ClubSuggestion"
+            android:label="@string/title_activity_club_suggestion"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.james.materialdesign2.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

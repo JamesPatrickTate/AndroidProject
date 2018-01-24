@@ -226,9 +226,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         List<String> shots = new ArrayList<String>();
         shots.add("Full");
         shots.add("3/4");
-        shots.add("2/3");
+        //shots.add("2/3");
         shots.add("1/2");
-        shots.add("1/3");
+        //shots.add("1/3");
         shots.add("1/4");
 
 
@@ -398,7 +398,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     }//on create end
 
     /**
-     * reduce the length of the distnce variabole to 3 decimal places
+     * reduce the length of the distance variable to 3 decimal places
      *
      * @param value
      * @param places

@@ -55,7 +55,7 @@ public class FirebaseDB {
 
 
 
-            databaseReference.child("shot/").addValueEventListener(new ValueEventListener() {
+           databaseReference.child("shot/").addValueEventListener(new ValueEventListener() {
 
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -88,10 +88,6 @@ public class FirebaseDB {
 
         return  allSHotData;
     }
-
-
-
-
 
 
 
