@@ -1,5 +1,7 @@
 package dto;
 
+import android.util.Log;
+
 /**
  *  saves vector coordinates and time of accelerometer event
  */
@@ -9,7 +11,7 @@ public class AccelerationEventCordinatesAndTime {
     private double x;
     private double y;
     private double z;
-    private long time;
+    private double time;
 
 
     public double getX() {
@@ -36,11 +38,12 @@ public class AccelerationEventCordinatesAndTime {
         this.z = z;
     }
 
-    public long getTime() {
+    public double getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(double time) {
+       // Log.d("XXXXX", "recorded time  in cords" + time);
         this.time = time;
     }
 

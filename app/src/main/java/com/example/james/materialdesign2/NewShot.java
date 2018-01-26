@@ -125,16 +125,16 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     double gsrValue = 0.0;
     ////////////////////////
 
-//    private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
-//        @Override
-//        public void onBandGsrChanged(final BandGsrEvent event) {
-//            if (event != null) {
-//                gsrValue = event.getResistance();
+    private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
+        @Override
+        public void onBandGsrChanged(final BandGsrEvent event) {
+            if (event != null) {
+                gsrValue = event.getResistance();
 //                tvLatitude.setText("gsr:" + event.getResistance());
-//
-//            }
-//        }
-//    };
+
+            }
+        }
+    };
 
     ////////////////////////
 
@@ -154,6 +154,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 swingDataPoint.setY(yVal);
                 swingDataPoint.setZ(zVal);
                 swingDataPoint.setTime(System.currentTimeMillis());
+                Log.d("XXXXX", "recorded time " + System.currentTimeMillis());
                 swingDataPoints.add(swingDataPoint);
 
 
@@ -169,7 +170,16 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //new GsrSubscriptionTask().execute();
+        // record gsr value then close gsr listener
+        new GsrSubscriptionTask().execute();
+
+        if (gsrValue != 0.0) {
+            try {
+                client.getSensorManager().unregisterGsrEventListener(mGsrEventListener);
+            } catch (BandIOException e) {
+                System.out.println("GSR PROBLEM");
+            }
+        }
 
         UniqueShotID = "testValue";
 
@@ -249,14 +259,18 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         txtStatus = (TextView) findViewById(R.id.txtStatus);
         /// acceleration for swing on and off
         accStart.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
             @Override
             public void onClick(View v) {
 
-//                try {
-//                    client.getSensorManager().unregisterGsrEventListener(mGsrEventListener);
-//                } catch (BandIOException e) {
-//                    System.out.println("Error disconnecting GSR listener");
-//                }
+
+
+
+
                 startRecordingDataPoints = true;
                 txtStatus.setText("");
 
@@ -682,44 +696,45 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     }
 
 
+    /**
+     * Gsr subscription
+     */
+    private class GsrSubscriptionTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                if (getConnectedBandClient()) {
+                    int hardwareVersion = Integer.parseInt(client.getHardwareVersion().await());
+                    if (hardwareVersion >= 20) {
+                        appendToUI("Band is connected.\n");
+                        client.getSensorManager().registerGsrEventListener(mGsrEventListener);
+                    } else {
+                        appendToUI("The Gsr sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
+                    }
+                } else {
+                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                }
+            } catch (BandException e) {
+                String exceptionMessage="";
+                switch (e.getErrorType()) {
+                    case UNSUPPORTED_SDK_VERSION_ERROR:
+                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+                        break;
+                    case SERVICE_ERROR:
+                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+                        break;
+                    default:
+                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+                        break;
+                }
+                appendToUI(exceptionMessage);
 
-
-//    private class GsrSubscriptionTask extends AsyncTask<Void, Void, Void> {
-//        @Override
-//        protected Void doInBackground(Void... params) {
-//            try {
-//                if (getConnectedBandClient()) {
-//                    int hardwareVersion = Integer.parseInt(client.getHardwareVersion().await());
-//                    if (hardwareVersion >= 20) {
-//                        appendToUI("Band is connected.\n");
-//                        client.getSensorManager().registerGsrEventListener(mGsrEventListener);
-//                    } else {
-//                        appendToUI("The Gsr sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
-//                    }
-//                } else {
-//                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
-//                }
-//            } catch (BandException e) {
-//                String exceptionMessage="";
-//                switch (e.getErrorType()) {
-//                    case UNSUPPORTED_SDK_VERSION_ERROR:
-//                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
-//                        break;
-//                    case SERVICE_ERROR:
-//                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
-//                        break;
-//                    default:
-//                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
-//                        break;
-//                }
-//                appendToUI(exceptionMessage);
-//
-//            } catch (Exception e) {
-//                appendToUI(e.getMessage());
-//            }
-//            return null;
-//        }
-//    }
+            } catch (Exception e) {
+                appendToUI(e.getMessage());
+            }
+            return null;
+        }
+    }
 
 
 
