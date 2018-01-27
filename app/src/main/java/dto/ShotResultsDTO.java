@@ -17,6 +17,7 @@ public class ShotResultsDTO implements Serializable {
     private String club;
     private String swingLength;
     private  String userID;
+    private  String golfCourseAddress;
     private double shotDistance;
     private double shotVelocity;
     private double StartLatitude;
@@ -112,6 +113,14 @@ public class ShotResultsDTO implements Serializable {
         this.userID = userID;
     }
 
+    public String getgolfCourseAddress() {
+        return golfCourseAddress;
+    }
+
+    public void setgolfCourseAddress (String golfCourseAddress){
+        this.golfCourseAddress = golfCourseAddress;
+    }
+
 
 
     @Override
@@ -120,7 +129,8 @@ public class ShotResultsDTO implements Serializable {
                 +"Swing:    "+swingLength+"\n\n"
                 +"Velocity: "+shotVelocity+"m/s \n\n"
                 +"Distance: "+shotDistance+"m \n\n"
-                +"Stress Indcators: \\n" +
+                +"Address: "+golfCourseAddress+" \n\n"
+                +"Stress Indcators: \n" +
                 "GSR::"+gsr+" ohm";
     }
 

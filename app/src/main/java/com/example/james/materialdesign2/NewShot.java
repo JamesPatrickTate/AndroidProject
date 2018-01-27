@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -46,6 +48,8 @@ import com.microsoft.band.ConnectionState;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.SampleRate;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.Format;
@@ -53,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import dto.AccelerationEventCordinatesAndTime;
 import dto.ShotResultsDTO;
@@ -86,7 +91,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     private ArrayList<AccelerationEventCordinatesAndTime> swingDataPoints = new ArrayList<>();
     private TextView maxVelView;
     private TextView sDist;
-
+    private String golfCourseAddress = "Sorry Location Unavaiable";
     private double maxVel;
     private double startLatitude;
     private double startLongitude;
@@ -95,23 +100,17 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     private double shotDistance;
     static Location currentLocation, startLocation, endLocation;
     private  FirebaseUser currentFirebaseUser;
-
     static final int REQUEST_LOCATION = 1;
     public LocationManager locationManager;
-
     LocationListener locationListener, listener;
-
     private BandClient client = null;
     private static final UUID tileId = UUID.fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
     private static final UUID pageId1 = UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
-
     private TextView st;
     private TextView en;
-
     static Location lastLocation = null;
     static double distanceInMetres = 0;
-
-    final String TAG = "GPS";
+    final String TAG = "NEWSHOT";
     private long UPDATE_INTERVAL = 1000;  /* 1 sec */
     private long FASTEST_INTERVAL = 500; /* 1/2 sec */
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -119,6 +118,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     GoogleApiClient gac;
     LocationRequest locationRequest;
     TextView tvLatitude, tvLongitude, tvTime;
+    Geocoder geocoder;
+
 
 
     boolean startRecordingDataPoints = false;
@@ -170,6 +171,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         // record gsr value then close gsr listener
         new GsrSubscriptionTask().execute();
 
@@ -343,22 +346,57 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 .build();
 
 
+
+
+        geocoder = new Geocoder(this, Locale.getDefault());
+
         distStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+
+
+
                 startLocation = currentLocation;
+
                 if(startLocation != null) {
 
                     startLatitude = startLocation.getLatitude();
                     startLongitude = startLocation.getLongitude();
-                    //tvLatitude.setText("sla:" + startLatitude + ", slo:" + startLongitude);
+
+                    if( geocoder != null) {
+
+                        Address golfCourse = NewShot.getAddress(startLatitude, startLongitude, geocoder);
+
+                        ArrayList<String> addressFragments = new ArrayList<String>();
+
+
+                        // Fetch the address lines using getAddressLine,
+
+                        for (int i = 0; i <= golfCourse.getMaxAddressLineIndex(); i++) {
+                            addressFragments.add(golfCourse.getAddressLine(i));
+                        }
+                        Log.i(TAG, "Length of address fragment :: " + addressFragments.size());
+                        golfCourseAddress = addressFragments.get(0);
+
+
+                    }else {
+                        Toast.makeText(NewShot.this,"Geocoder null ", Toast.LENGTH_LONG).show();
+                    }
+
+
+
                 }else {
                     Toast.makeText(NewShot.this, "Location local failed please wait!", Toast.LENGTH_LONG).show();
                 }
 
             }
         });
+
+       
+
+        //Address golfCourseName = getAddress(currentLocation.getLatitude(), currentLocation.getLongitude());
+
 
         sDist = (TextView) findViewById(R.id.distval);
 
@@ -370,9 +408,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 endLongitude = endLocation.getLongitude();
                 tvLongitude.setText("ela:" + endLatitude + ", elo:" + endLongitude);
 
-                //shotDistance = startLocation.distanceTo(endLocation);
-                //shotDistance = ;
-                //shotDistance = round(shotDistance, 3);
+
 
                 float[] t = new float[5];
                 Location.distanceBetween(startLatitude,startLongitude,endLatitude,endLongitude,t);
@@ -583,6 +619,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setEndLatitude(endLatitude);
         shotData.setEndLongitude(endLongitude);
         shotData.setGsr(gsrValue);
+        shotData.setgolfCourseAddress(golfCourseAddress);
+
 
         //unique shot id
         Date dNow = new Date( );
@@ -734,6 +772,27 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
             }
             return null;
         }
+    }
+
+    /**
+     * get the adress of the current course for the shot
+     * @param latitude
+     * @param longitude
+     * @return
+     */
+
+
+    public static Address getAddress(double latitude,double longitude, Geocoder geocoder)
+    {
+        List<Address> addresses;
+
+        try {
+            addresses = geocoder.getFromLocation(latitude,longitude, 1);
+            return addresses.get(0);
+        } catch (IOException e) {
+            Log.i("NEWSHOT", "problem with geocder "  );;
+        }
+        return null;
     }
 
 

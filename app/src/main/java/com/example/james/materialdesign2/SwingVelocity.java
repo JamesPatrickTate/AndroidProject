@@ -58,7 +58,7 @@ public class SwingVelocity {
                        Log.v("Acc", "TEMPVAL= " + temp);
 
                         timeTaken = temp / 1000;
-                        Log.v("Acc", "TIMETAKEN= " + timeTaken);
+                        Log.v("Acc", "TIMETAKEN = " + timeTaken);
 
 
 
