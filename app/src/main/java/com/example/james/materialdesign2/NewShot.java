@@ -12,6 +12,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -49,9 +51,13 @@ import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.SampleRate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,6 +74,9 @@ import dto.UserDTO;
 
 /**
  * https://developers.google.com/android/guides/api-client workng on this page for maps
+ *
+ *
+ * http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&APPID=acd069c689dcab6dd5f89d4425a2045c
  */
 
 public class NewShot extends AppCompatActivity implements OnItemSelectedListener,
@@ -91,7 +100,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     private ArrayList<AccelerationEventCordinatesAndTime> swingDataPoints = new ArrayList<>();
     private TextView maxVelView;
     private TextView sDist;
-    private String golfCourseAddress = "Sorry Location Unavaiable";
+    private static  String golfCourseAddress = "Sorry Location Unavaiable";
     private double maxVel;
     private double startLatitude;
     private double startLongitude;
@@ -364,27 +373,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                     startLatitude = startLocation.getLatitude();
                     startLongitude = startLocation.getLongitude();
 
-                    if( geocoder != null) {
+                    Handler h = new Handler();
 
-                        Address golfCourse = NewShot.getAddress(startLatitude, startLongitude, geocoder);
-
-                        ArrayList<String> addressFragments = new ArrayList<String>();
-
-
-                        // Fetch the address lines using getAddressLine,
-
-                        for (int i = 0; i <= golfCourse.getMaxAddressLineIndex(); i++) {
-                            addressFragments.add(golfCourse.getAddressLine(i));
-                        }
-                        Log.i(TAG, "Length of address fragment :: " + addressFragments.size());
-                        golfCourseAddress = addressFragments.get(0);
-
-
-                    }else {
-                        Toast.makeText(NewShot.this,"Geocoder null ", Toast.LENGTH_LONG).show();
-                    }
-
-
+                    getAddressFromLocation(endLatitude, endLongitude,NewShot.this, h );
 
                 }else {
                     Toast.makeText(NewShot.this, "Location local failed please wait!", Toast.LENGTH_LONG).show();
@@ -416,6 +407,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                 sDist.setText(shotDistance + "m\n");
 
                 tvLongitude.setText("accuracy:"+endLocation.getAccuracy());
+
+
                 //tvLatitude.setText("bet:"+t[0]);
 
             }
@@ -601,6 +594,30 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
      * creates dto and saves to data base
      */
     public void onSaveClicked() {
+
+
+//        if( geocoder != null) {
+//
+//            Address golfCourse = NewShot.getAddress(startLatitude, startLongitude, geocoder);
+//
+//            ArrayList<String> addressFragments = new ArrayList<String>();
+//
+//
+//            // Fetch the address lines using getAddressLine,
+//
+//            for (int i = 0; i <= golfCourse.getMaxAddressLineIndex(); i++) {
+//                addressFragments.add(golfCourse.getAddressLine(i));
+//            }
+//            Log.i(TAG, "Length of address fragment :: " + addressFragments.size());
+//            golfCourseAddress = addressFragments.get(0);
+//
+//
+//        }else {
+//            Toast.makeText(NewShot.this,"Geocoder null ", Toast.LENGTH_LONG).show();
+//        }
+
+        Toast.makeText(this, "Address : "+ golfCourseAddress , Toast.LENGTH_LONG).show();
+
         club = clubSelector.getSelectedItem().toString();
         swingLength = shotSelector.getSelectedItem().toString();
 
@@ -620,6 +637,12 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setEndLongitude(endLongitude);
         shotData.setGsr(gsrValue);
         shotData.setgolfCourseAddress(golfCourseAddress);
+
+
+
+
+
+
 
 
         //unique shot id
@@ -648,6 +671,43 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
             e.printStackTrace();
             Toast.makeText(this, R.string.couldNotSaveShotData, Toast.LENGTH_LONG).show();
         }
+            String wetherData =  " ";
+
+//        try {
+//
+//            String openWeatherAPi= "http://api.openweathermap.org/data/2.5/weather?lat="+startLatitude+"&lon="+startLongitude+"&APPID=acd069c689dcab6dd5f89d4425a2045c";
+//            URL url = new URL(openWeatherAPi);
+//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//            try {
+//                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//                StringBuilder stringBuilder = new StringBuilder();
+//                String line;
+//                while ((line = bufferedReader.readLine()) != null) {
+//                    stringBuilder.append(line).append("\n");
+//                }
+//                bufferedReader.close();
+//                wetherData =  stringBuilder.toString();
+//                Log.i(TAG, "api return  "+ wetherData);
+//            }
+//            finally{
+//                urlConnection.disconnect();
+//            }
+//        }
+//        catch(Exception e) {
+//            Log.e("ERROR", e.getMessage(), e);
+//
+//        }
+//
+//
+//        Toast.makeText(this, wetherData, Toast.LENGTH_LONG).show();
+
+
+
+
+
+
+
+
 
     }//end save on clicked
 
@@ -774,25 +834,75 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         }
     }
 
-    /**
-     * get the adress of the current course for the shot
-     * @param latitude
-     * @param longitude
-     * @return
-     */
 
 
-    public static Address getAddress(double latitude,double longitude, Geocoder geocoder)
+
+    public static void setAddress(String s)
     {
-        List<Address> addresses;
+        golfCourseAddress = s;
+    }
 
-        try {
-            addresses = geocoder.getFromLocation(latitude,longitude, 1);
-            return addresses.get(0);
-        } catch (IOException e) {
-            Log.i("NEWSHOT", "problem with geocder "  );;
-        }
-        return null;
+
+
+    public static void getAddressFromLocation(final double latitude, final double longitude, final Context context, final Handler handler) {
+        Thread thread = new Thread() {
+
+
+            @Override
+            public void run() {
+
+                Log.i("NEWSHOT", "lat and long "  + latitude +", "+ longitude ) ;
+                Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+                String result = "No Address Available";
+                try {
+                    List<Address> addresses;
+
+                    List < Address > addressList = geocoder.getFromLocation(latitude, longitude, 1);
+
+
+
+
+                    if (addressList != null && addressList.size() > 0) {
+                       Address address = addressList.get(0);
+                       StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                            sb.append(address.getAddressLine(i)); //.append("\n");
+                       }
+                        sb.append(address.getAddressLine(0)).append("\n");
+//                        sb.append(address.getFeatureName()).append("\n");
+//                       sb.append(address.getLocality()).append("\n");
+//                        sb.append(address.getCountryName());
+                       result = sb.toString();
+
+
+                       NewShot.setAddress(result);
+
+                        ArrayList<String> addressFragments = new ArrayList<String>();
+
+
+                    }
+                } catch (IOException e) {
+                    Log.e("Location Address Loader", "Unable connect to Geocoder", e);
+                } finally {
+                    Message message = Message.obtain();
+                    message.setTarget(handler);
+                    if (result != null) {
+                        message.what = 1;
+                        Bundle bundle = new Bundle();
+                        bundle.putString("address", result);
+                        message.setData(bundle);
+                    } else {
+                        message.what = 1;
+                        Bundle bundle = new Bundle();
+                        result = " Unable to get address for this location.";
+                        bundle.putString("address", result);
+                        message.setData(bundle);
+                    }
+                    message.sendToTarget();
+                }
+            }
+        };
+        thread.start();
     }
 
 
