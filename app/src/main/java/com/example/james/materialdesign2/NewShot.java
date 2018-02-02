@@ -375,7 +375,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
                     Handler h = new Handler();
 
-                    getAddressFromLocation(endLatitude, endLongitude,NewShot.this, h );
+                   getAddressFromLocation(endLatitude, endLongitude,NewShot.this, h );
 
                 }else {
                     Toast.makeText(NewShot.this, "Location local failed please wait!", Toast.LENGTH_LONG).show();
@@ -428,6 +428,10 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
                         .make(getWindow().getDecorView().getRootView(), R.string.try_to_save,
                                 Snackbar.LENGTH_SHORT);
                 snackbar.show();
+
+                Handler h = new Handler();
+
+                   getAddressFromLocation(endLatitude, endLongitude,NewShot.this, h );
 
                 onSaveClicked();
 
@@ -593,28 +597,10 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     /**
      * creates dto and saves to data base
      */
-    public void onSaveClicked() {
+    public  void onSaveClicked() {
 
 
-//        if( geocoder != null) {
 //
-//            Address golfCourse = NewShot.getAddress(startLatitude, startLongitude, geocoder);
-//
-//            ArrayList<String> addressFragments = new ArrayList<String>();
-//
-//
-//            // Fetch the address lines using getAddressLine,
-//
-//            for (int i = 0; i <= golfCourse.getMaxAddressLineIndex(); i++) {
-//                addressFragments.add(golfCourse.getAddressLine(i));
-//            }
-//            Log.i(TAG, "Length of address fragment :: " + addressFragments.size());
-//            golfCourseAddress = addressFragments.get(0);
-//
-//
-//        }else {
-//            Toast.makeText(NewShot.this,"Geocoder null ", Toast.LENGTH_LONG).show();
-//        }
 
         Toast.makeText(this, "Address : "+ golfCourseAddress , Toast.LENGTH_LONG).show();
 
@@ -840,6 +826,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     public static void setAddress(String s)
     {
         golfCourseAddress = s;
+
     }
 
 
@@ -876,6 +863,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
 
                        NewShot.setAddress(result);
+
+
 
                         ArrayList<String> addressFragments = new ArrayList<String>();
 
