@@ -10,6 +10,5 @@ import org.junit.Test;
 public class SwingVelocityTest {
 
 //    @Before
-//    @Test
 
 }
