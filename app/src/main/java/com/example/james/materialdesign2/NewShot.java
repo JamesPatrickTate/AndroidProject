@@ -87,6 +87,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 {
 
     //private static final String TAG = "NewShot";
+
     private Spinner clubSelector;
     private Spinner shotSelector;
     private String club;
@@ -610,6 +611,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         // create a DTO to hold our shotData information.
         ShotResultsDTO shotData = new ShotResultsDTO();
         currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        Bundle bundle = getIntent().getExtras();
+        String userEmail = bundle.getString("Email");
         //String s = currentFirebaseUser;
         // populate the shotData with values from the screen.
         shotData.setClub(club);
@@ -623,6 +626,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setEndLongitude(endLongitude);
         shotData.setGsr(gsrValue);
         shotData.setgolfCourseAddress(golfCourseAddress);
+        shotData.setEmail(userEmail);
 
 
 
@@ -640,8 +644,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         // save the shotData.
         try {
             // specimenDAO.save(shotData);#
-            Bundle bundle = getIntent().getExtras();
-            String userEmail = bundle.getString("Email");
+//            Bundle bundle = getIntent().getExtras();
+//            String userEmail = bundle.getString("Email");
             //Toast.makeText(this, "email: "+userEmail, Toast.LENGTH_LONG).show();
 
 

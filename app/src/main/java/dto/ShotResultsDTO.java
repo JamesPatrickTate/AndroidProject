@@ -24,7 +24,7 @@ public class ShotResultsDTO implements Serializable {
     private double StartLongitude;
     private double endLatitude;
     private double endLongitude;
-
+    private String email;
     private double gsr;
 
 
@@ -119,6 +119,14 @@ public class ShotResultsDTO implements Serializable {
 
     public void setgolfCourseAddress (String golfCourseAddress){
         this.golfCourseAddress = golfCourseAddress;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 
