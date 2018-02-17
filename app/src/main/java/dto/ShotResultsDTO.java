@@ -26,11 +26,20 @@ public class ShotResultsDTO implements Serializable {
     private double endLongitude;
     private String email;
     private double gsr;
+    private String day;
 
 
 
     public ShotResultsDTO(){
         //empty constructor
+    }
+
+    public String getDay() {
+        return day;
+    }
+
+    public void setDay(String day) {
+        this.day= day;
     }
 
     public double getGsr() {

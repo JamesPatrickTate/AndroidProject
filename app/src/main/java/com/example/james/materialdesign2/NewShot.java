@@ -640,7 +640,10 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
         UniqueShotID = formatter.format(dNow);
 
-
+        Format day = new SimpleDateFormat("yyyy-MM-dd");
+        String dayOfShot = day.format(dNow);
+        shotData.setDay(dayOfShot);
+        Log.d("Day:: ", dayOfShot);
         // save the shotData.
         try {
             // specimenDAO.save(shotData);#
