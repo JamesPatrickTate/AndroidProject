@@ -1,11 +1,15 @@
 package com.example.james.materialdesign2;
 
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -65,10 +69,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.UUID;
 
 import static android.R.attr.duration;
+import static com.example.james.materialdesign2.HeartRateService.MESSAGE;
 import static com.example.james.materialdesign2.R.styleable.CoordinatorLayout;
 
 /////////////////////////////////////////////////////////////////
@@ -83,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     protected static final UUID pageId3 = UUID.fromString("2195938e-bcea-11e7-abc4-cec278b6b50a");
     protected static final UUID pageId4 = UUID.fromString("40075faa-bcea-11e7-abc4-cec278b6b50a");
     private TextView txtStatus;
+    private TextView txtStatusMain;
     private ScrollView scrollView;
     private Button btnStop;
     private Snackbar snackbar;
@@ -91,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     private Intent myIntent;
     private Toolbar mToolbar;
     private FragmentDrawer drawerFragment;
+    final WeakReference<Activity> reference  = new WeakReference<Activity>(this);
 
 
 
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         btnStart = (Button) findViewById(R.id.startButton);
         btnStop = (Button) findViewById(R.id.done);
-        txtStatus = (TextView) findViewById(R.id.txtStatus);
+
         scrollView = (ScrollView) findViewById(R.id.svTest);
         newShot = (FloatingActionButton) findViewById(R.id.newShot);
 
@@ -132,9 +140,10 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
+            @SuppressWarnings("unchecked")
             public void onClick(View v) {
-                disableButtons();
-                new StartTask().execute();
+                new HeartRateConsentTask().execute(reference);
+                startService(btnStart);
             }
         });
 
@@ -143,8 +152,9 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                disableButtons();
-                new StopTask().execute();
+//                disableButtons();
+//                new StopTask().execute();
+                stopService(btnStop);
             }
         });
 
@@ -167,14 +177,87 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         });
 
 
+        txtStatus = (TextView) findViewById(R.id.txtStatus);
+        txtStatus.setText("");
+
+
+        //add messages from heartrate service
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String message = intent.getStringExtra(MESSAGE);
+
+                        txtStatus.setText("From Service: " + message);
+                    }
+                }, new IntentFilter(HeartRateService.MESSAGE_FROM_SERVICE)
+        );
+
+
+
 
 
     }//end of onCreate
 
+    /**
+     * start heart rate service
+     */
+    public void startService( View view) {
+        Intent heartRateIntent = new Intent(this, HeartRateService.class);
+        startService(heartRateIntent);
+    }
+
+    /**
+     * stop heart rate service
+     */
+    public void stopService(View view) {
+        Intent heartRateIntent = new Intent(this, HeartRateService.class);
+        stopService(heartRateIntent);
+    }
+
+    //heart rate consent
+    private class HeartRateConsentTask extends AsyncTask<WeakReference<Activity>, Void, Void> {
+        @Override
+        protected Void doInBackground(WeakReference<Activity>... params) {
+            try {
+                if (getConnectedBandClient()) {
+
+                    if (params[0].get() != null) {
+                        client.getSensorManager().requestHeartRateConsent(params[0].get(), new HeartRateConsentListener() {
+                            @Override
+                            public void userAccepted(boolean consentGiven) {
+                            }
+                        });
+                    }
+                } else {
+                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                }
+            } catch (BandException e) {
+                String exceptionMessage="";
+                switch (e.getErrorType()) {
+                    case UNSUPPORTED_SDK_VERSION_ERROR:
+                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+                        break;
+                    case SERVICE_ERROR:
+                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+                        break;
+                    default:
+                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+                        break;
+                }
+                appendToUI(exceptionMessage);
+
+            } catch (Exception e) {
+                appendToUI(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+
     private void openSuggestions(View view) {
 
         Intent intent = new Intent(this, ClubSuggestion.class);
-
         startActivity(intent);
     }
 

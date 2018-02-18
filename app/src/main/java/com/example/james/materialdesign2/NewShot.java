@@ -646,62 +646,16 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         Log.d("Day:: ", dayOfShot);
         // save the shotData.
         try {
-            // specimenDAO.save(shotData);#
-//            Bundle bundle = getIntent().getExtras();
-//            String userEmail = bundle.getString("Email");
-            //Toast.makeText(this, "email: "+userEmail, Toast.LENGTH_LONG).show();
-
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference databaseReference = database.getReference();
-            //databaseReference.child("shot/"+UniqueShotID).setValue(shotData);
-
-           //expirement
-            databaseReference.child("shot/"+currentFirebaseUser.getUid()+"/"+UniqueShotID).setValue(shotData);
-//            databaseReference.child("shot/"+UniqueShotID).push().setValue(shotData);
-
+            databaseReference.child("shot/"+currentFirebaseUser.getUid()+
+                    "/"+UniqueShotID).setValue(shotData);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, R.string.couldNotSaveShotData, Toast.LENGTH_LONG).show();
         }
             String wetherData =  " ";
-
-//        try {
-//
-//            String openWeatherAPi= "http://api.openweathermap.org/data/2.5/weather?lat="+startLatitude+"&lon="+startLongitude+"&APPID=acd069c689dcab6dd5f89d4425a2045c";
-//            URL url = new URL(openWeatherAPi);
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            try {
-//                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//                StringBuilder stringBuilder = new StringBuilder();
-//                String line;
-//                while ((line = bufferedReader.readLine()) != null) {
-//                    stringBuilder.append(line).append("\n");
-//                }
-//                bufferedReader.close();
-//                wetherData =  stringBuilder.toString();
-//                Log.i(TAG, "api return  "+ wetherData);
-//            }
-//            finally{
-//                urlConnection.disconnect();
-//            }
-//        }
-//        catch(Exception e) {
-//            Log.e("ERROR", e.getMessage(), e);
-//
-//        }
-//
-//
-//        Toast.makeText(this, wetherData, Toast.LENGTH_LONG).show();
-
-
-
-
-
-
-
-
-
     }//end save on clicked
 
     /**
