@@ -124,6 +124,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     private long UPDATE_INTERVAL = 1000;  /* 1 sec */
     private long FASTEST_INTERVAL = 500; /* 1/2 sec */
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    public static int heartRatePreShot = 0;
+    public static double skinTempPreShot = 0;
+    public static double gsrPreShot = 0;
 
     GoogleApiClient gac;
     LocationRequest locationRequest;
@@ -134,6 +137,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     boolean startRecordingDataPoints = false;
     double gsrValue = 0.0;
+
     ////////////////////////
 
     private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
@@ -624,9 +628,12 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setStartLongitude(startLongitude);
         shotData.setEndLatitude(endLatitude);
         shotData.setEndLongitude(endLongitude);
-        shotData.setGsr(gsrValue);
+        shotData.setGsr(gsrPreShot);
+        //shotData.setGsr(gsrValue);
         shotData.setgolfCourseAddress(golfCourseAddress);
         shotData.setEmail(userEmail);
+        shotData.setHeartRatePreShot(heartRatePreShot);
+        shotData.setSkinTemp(skinTempPreShot);
 
 
 
@@ -656,6 +663,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
             Toast.makeText(this, R.string.couldNotSaveShotData, Toast.LENGTH_LONG).show();
         }
             String wetherData =  " ";
+
     }//end save on clicked
 
     /**
@@ -740,6 +748,10 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         return ConnectionState.CONNECTED == client.connect().await();
     }
 
+    ////////////////////////////
+
+
+
 
     /**
      * Gsr subscription
@@ -781,7 +793,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         }
     }
 
-
+//////////////////////////////////
 
 
     public static void setAddress(String s)

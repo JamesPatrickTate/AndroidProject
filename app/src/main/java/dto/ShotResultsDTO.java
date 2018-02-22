@@ -27,7 +27,28 @@ public class ShotResultsDTO implements Serializable {
     private String email;
     private double gsr;
     private String day;
+    private int heartRatePreShot;
+    private double skinTemp;
 
+
+    public double getSkinTemp() {
+        return skinTemp;
+    }
+
+    public void setSkinTemp(double skinTemp) {
+        this.skinTemp = skinTemp;
+    }
+
+
+
+
+    public int getHeartRatePreShot() {
+        return heartRatePreShot;
+    }
+
+    public void setHeartRatePreShot(int heartRatePreShot) {
+        this.heartRatePreShot = heartRatePreShot;
+    }
 
 
     public ShotResultsDTO(){
@@ -148,7 +169,9 @@ public class ShotResultsDTO implements Serializable {
                 +"Distance: "+shotDistance+"m \n\n"
                 +"Address: "+golfCourseAddress+" \n\n"
                 +"Stress Indcators: \n" +
-                "GSR::"+gsr+" ohm";
+                "GSR: "+gsr+" ohm \n"+
+                "Heart Rate: " + heartRatePreShot+"BPM \n"+
+                "Skin Temperature: "+ skinTemp;
     }
 
 

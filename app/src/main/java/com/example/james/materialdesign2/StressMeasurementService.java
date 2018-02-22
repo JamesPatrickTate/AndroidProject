@@ -6,40 +6,71 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
+
 import java.lang.ref.WeakReference;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandException;
 import com.microsoft.band.BandInfo;
-import com.microsoft.band.BandIOException;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.UserConsent;
+import com.microsoft.band.sensors.BandGsrEvent;
+import com.microsoft.band.sensors.BandGsrEventListener;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.BandSkinTemperatureEvent;
+import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 
-import android.os.Bundle;
-import android.view.View;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.widget.TextView;
 
 
 /**
  * Created by james on 17/02/2018.
  */
 
-public class HeartRateService extends Service
+public class StressMeasurementService extends Service
 {
     private BandClient client = null;
+    ////////
+
+    private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
+        @Override
+        public void onBandGsrChanged(final BandGsrEvent event) {
+            if (event != null) {
+                appendToUI(String.format("Resistance = %d kOhms\n", event.getResistance()));
+                NewShot.gsrPreShot = event.getResistance();
+                MainActivity.gsrList.add(NewShot.gsrPreShot);
+            }
+        }
+    };
+    //private BandClient client = null;
+    float t = 0.0f;
+
+    private BandSkinTemperatureEventListener bandSkinTemperatureEventListener = new BandSkinTemperatureEventListener() {
+        @Override
+        public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent bandSkinTemperatureEvent) {
+            if(bandSkinTemperatureEvent != null) {
+                NewShot.skinTempPreShot = bandSkinTemperatureEvent.getTemperature();
+                MainActivity.skinTemp.add(bandSkinTemperatureEvent.getTemperature());
+                // Log.i(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
+                //Log.d(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
+
+            }
+        }
+    };
+
+
+    ///////////
+
     String TAG= "HEART";
 
 
+
     public static final String
-            MESSAGE_FROM_SERVICE = HeartRateService.class.getName() + "HeartRateService",
+            MESSAGE_FROM_SERVICE = StressMeasurementService.class.getName() + "HeartRateService",
             MESSAGE = "string";
     private String string = "";
 
@@ -50,6 +81,9 @@ public class HeartRateService extends Service
             if (event != null) {
                 appendToUI(String.format("Heart Rate = %d beats per minute\n"
                         + "Quality = %s\n", event.getHeartRate(), event.getQuality()));
+                MainActivity.heartRateList.add(event.getHeartRate());
+                NewShot.heartRatePreShot = event.getHeartRate();
+
             }
         }
     };
@@ -64,7 +98,11 @@ public class HeartRateService extends Service
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         new HeartRateSubscriptionTask().execute();
-        Toast.makeText(this, "Service has begun", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service has begun", Toast.LENGTH_LONG).show();
+
+        new SkinTemperatureSubscriptionTask().execute();
+
+        new GsrSubscriptionTask().execute();
         return  START_STICKY;
     }
 
@@ -80,7 +118,7 @@ public class HeartRateService extends Service
             }
             super.onDestroy();
         }
-        Toast.makeText(this, "Service has stopped", Toast.LENGTH_LONG).show();
+       // Toast.makeText(this, "Service has stopped", Toast.LENGTH_LONG).show();
     }
 
     //we want a started service this is only here as it must be over ridden.
@@ -171,7 +209,7 @@ public class HeartRateService extends Service
     }
 
     private void appendToUI(final String string) {
-        Log.d(TAG, "onConnected");
+       Log.d(TAG, "onConnected");
         Intent intent = new Intent(MESSAGE_FROM_SERVICE);
         intent.putExtra(MESSAGE, string);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -194,6 +232,88 @@ public class HeartRateService extends Service
         appendToUI("Band is connecting...\n");
         return ConnectionState.CONNECTED == client.connect().await();
     }
+
+    private class SkinTemperatureSubscriptionTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                if (getConnectedBandClient()) {
+                    int hardwareVersion = Integer.parseInt(client.getHardwareVersion().await());
+                    if (hardwareVersion >= 20) {
+                        appendToUI("Band is connected.\n");
+                        client.getSensorManager().registerSkinTemperatureEventListener(bandSkinTemperatureEventListener);
+                    } else {
+                        appendToUI("The Skin Temp sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
+                    }
+                } else {
+                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                }
+            } catch (BandException e) {
+                String exceptionMessage="";
+                switch (e.getErrorType()) {
+                    case UNSUPPORTED_SDK_VERSION_ERROR:
+                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+                        break;
+                    case SERVICE_ERROR:
+                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+                        break;
+                    default:
+                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+                        break;
+                }
+                appendToUI(exceptionMessage);
+
+            } catch (Exception e) {
+                appendToUI(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+    ///////
+
+    /**
+     * Gsr subscription
+     */
+    private class GsrSubscriptionTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                if (getConnectedBandClient()) {
+                    int hardwareVersion = Integer.parseInt(client.getHardwareVersion().await());
+                    if (hardwareVersion >= 20) {
+                        appendToUI("Band is connected.\n");
+                        client.getSensorManager().registerGsrEventListener(mGsrEventListener);
+                    } else {
+                        appendToUI("The Gsr sensor is not supported with your Band version. Microsoft Band 2 is required.\n");
+                    }
+                } else {
+                    appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
+                }
+            } catch (BandException e) {
+                String exceptionMessage="";
+                switch (e.getErrorType()) {
+                    case UNSUPPORTED_SDK_VERSION_ERROR:
+                        exceptionMessage = "Microsoft Health BandService doesn't support your SDK Version. Please update to latest SDK.\n";
+                        break;
+                    case SERVICE_ERROR:
+                        exceptionMessage = "Microsoft Health BandService is not available. Please make sure Microsoft Health is installed and that you have the correct permissions.\n";
+                        break;
+                    default:
+                        exceptionMessage = "Unknown error occured: " + e.getMessage() + "\n";
+                        break;
+                }
+                appendToUI(exceptionMessage);
+
+            } catch (Exception e) {
+                appendToUI(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+
+
 
 
 }//end class

@@ -113,7 +113,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.james.materialdesign2.MainActivity" />
         </activity>
-        <service android:name=".HeartRateService" android:enabled="true" android:exported="true"></service>
+        <service android:name=".StressMeasurementService" android:enabled="true" android:exported="true"></service>
     </application>
 
 </manifest>

@@ -10,33 +10,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -47,21 +32,17 @@ import com.microsoft.band.BandException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.BandIOException;
 import com.microsoft.band.ConnectionState;
-import com.microsoft.band.sensors.BandHeartRateEvent;
-import com.microsoft.band.sensors.BandHeartRateEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.TileButtonEvent;
 import com.microsoft.band.tiles.TileEvent;
-import com.microsoft.band.tiles.pages.FilledButton;
-import com.microsoft.band.tiles.pages.FilledButtonData;
-import com.microsoft.band.tiles.pages.FlowPanel;
 import com.microsoft.band.tiles.pages.FlowPanelOrientation;
 import com.microsoft.band.tiles.pages.PageData;
 import com.microsoft.band.tiles.pages.PageLayout;
 import com.microsoft.band.tiles.pages.ScrollFlowPanel;
 import com.microsoft.band.tiles.pages.TextButton;
 import com.microsoft.band.tiles.pages.TextButtonData;
+
 
 import android.os.AsyncTask;
 import android.widget.Button;
@@ -70,12 +51,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static android.R.attr.duration;
-import static com.example.james.materialdesign2.HeartRateService.MESSAGE;
-import static com.example.james.materialdesign2.R.styleable.CoordinatorLayout;
+import static com.example.james.materialdesign2.StressMeasurementService.MESSAGE;
+
 
 /////////////////////////////////////////////////////////////////
 
@@ -99,7 +80,13 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     private Toolbar mToolbar;
     private FragmentDrawer drawerFragment;
     final WeakReference<Activity> reference  = new WeakReference<Activity>(this);
+    public static List<Integer> heartRateList = new ArrayList<>();
+    public static List<Float> skinTemp = new ArrayList<>();
+    public static List<Double> gsrList = new ArrayList<>();
+    String TAG = "STRESS";
 
+    private  long intialCalories, finalCalories, totalCaloriesBurned = 0;
+    public static long currentCals =0;
 
 
 
@@ -144,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             public void onClick(View v) {
                 new HeartRateConsentTask().execute(reference);
                 startService(btnStart);
+
             }
         });
 
@@ -154,7 +142,13 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             public void onClick(View v) {
 //                disableButtons();
 //                new StopTask().execute();
+
+                Toast.makeText(MainActivity.this, "Heart rate count " + heartRateList.size(), Toast.LENGTH_LONG).show();
                 stopService(btnStop);
+
+                Log.d(TAG, "heart rate length: " + heartRateList +
+                                "\n GSR list length: " + gsrList +
+                                "\n skin temp list: " + skinTemp);
             }
         });
 
@@ -190,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
                         txtStatus.setText("From Service: " + message);
                     }
-                }, new IntentFilter(HeartRateService.MESSAGE_FROM_SERVICE)
+                }, new IntentFilter(StressMeasurementService.MESSAGE_FROM_SERVICE)
         );
 
 
@@ -203,17 +197,39 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
      * start heart rate service
      */
     public void startService( View view) {
-        Intent heartRateIntent = new Intent(this, HeartRateService.class);
+        //heart rate works
+        Intent heartRateIntent = new Intent(this, StressMeasurementService.class);
         startService(heartRateIntent);
+//        //calorie doesnt work
+//        Intent calorieIntent = new Intent(this, CaloriesService.class);
+//        startService(calorieIntent);
+        //skin temp
+
+
+        //intialCalories = currentCals;
+        //Toast.makeText(MainActivity.this, "intialCalories " + intialCalories, Toast.LENGTH_LONG).show();
+
     }
+
+
 
     /**
      * stop heart rate service
      */
     public void stopService(View view) {
-        Intent heartRateIntent = new Intent(this, HeartRateService.class);
+        Intent heartRateIntent = new Intent(this, StressMeasurementService.class);
         stopService(heartRateIntent);
+
+
+
+        //calories
+//        finalCalories = currentCals;
+//        totalCaloriesBurned = finalCalories - intialCalories;
+//        Toast.makeText(MainActivity.this, " finalCalories " +  finalCalories+ " totalCaloriesBurned "+totalCaloriesBurned, Toast.LENGTH_LONG).show();
+//        Intent calorieIntent = new Intent(this, CaloriesService.class);
+//        stopService(calorieIntent);
     }
+
 
     //heart rate consent
     private class HeartRateConsentTask extends AsyncTask<WeakReference<Activity>, Void, Void> {
