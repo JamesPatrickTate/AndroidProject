@@ -34,6 +34,7 @@ import android.os.AsyncTask;
 public class StressMeasurementService extends Service
 {
     private BandClient client = null;
+    double t = 0.0;
     ////////
 
     private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
@@ -42,12 +43,14 @@ public class StressMeasurementService extends Service
             if (event != null) {
                 appendToUI(String.format("Resistance = %d kOhms\n", event.getResistance()));
                 NewShot.gsrPreShot = event.getResistance();
-                MainActivity.gsrList.add(NewShot.gsrPreShot);
+                t = event.getResistance()/10000;
+                MainActivity.gsrList.add(t);
+                MainActivity.gsrTimes.add(event.getTimestamp());
             }
         }
     };
     //private BandClient client = null;
-    float t = 0.0f;
+
 
     private BandSkinTemperatureEventListener bandSkinTemperatureEventListener = new BandSkinTemperatureEventListener() {
         @Override
@@ -55,6 +58,7 @@ public class StressMeasurementService extends Service
             if(bandSkinTemperatureEvent != null) {
                 NewShot.skinTempPreShot = bandSkinTemperatureEvent.getTemperature();
                 MainActivity.skinTemp.add(bandSkinTemperatureEvent.getTemperature());
+                MainActivity.skinTimes.add(bandSkinTemperatureEvent.getTimestamp());
                 // Log.i(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
                 //Log.d(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
 
@@ -82,6 +86,7 @@ public class StressMeasurementService extends Service
                 appendToUI(String.format("Heart Rate = %d beats per minute\n"
                         + "Quality = %s\n", event.getHeartRate(), event.getQuality()));
                 MainActivity.heartRateList.add(event.getHeartRate());
+                MainActivity.HRtimes.add(event.getTimestamp());
                 NewShot.heartRatePreShot = event.getHeartRate();
 
             }

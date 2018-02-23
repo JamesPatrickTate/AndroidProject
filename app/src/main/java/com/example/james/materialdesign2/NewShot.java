@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -208,6 +209,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         accEnd = (Button) findViewById(R.id.accEnd);
         distStart = (Button) findViewById(R.id.distStart);
         distEnd = (Button) findViewById(R.id.distEnd);
+        //will keep screen awake as user takes shot.
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
 

@@ -26,6 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 //band imports///////////////////////////////////////////////////
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandException;
@@ -51,9 +55,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import dto.RoundStressDTO;
+import dto.ShotResultsDTO;
 
 import static com.example.james.materialdesign2.StressMeasurementService.MESSAGE;
 
@@ -83,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     public static List<Integer> heartRateList = new ArrayList<>();
     public static List<Float> skinTemp = new ArrayList<>();
     public static List<Double> gsrList = new ArrayList<>();
+    public static List<Long> gsrTimes = new ArrayList<>();
+    public static List<Long> HRtimes = new ArrayList<>();
+    public static List<Long> skinTimes = new ArrayList<>();
+    private FirebaseUser currentFirebaseUser;
+    private String UniqueShotID;
+
     String TAG = "STRESS";
 
     private  long intialCalories, finalCalories, totalCaloriesBurned = 0;
@@ -145,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
                 Toast.makeText(MainActivity.this, "Heart rate count " + heartRateList.size(), Toast.LENGTH_LONG).show();
                 stopService(btnStop);
+                onSaveClicked();
 
                 Log.d(TAG, "heart rate length: " + heartRateList +
                                 "\n GSR list length: " + gsrList +
@@ -192,6 +209,46 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
     }//end of onCreate
+
+    //save stress data for round
+    /**
+     * creates dto and saves to data base
+     */
+    public  void onSaveClicked() {
+
+        // create a DTO to hold our stressData information.
+        RoundStressDTO roundStressDTO = new RoundStressDTO();
+        currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        Bundle bundle = getIntent().getExtras();
+        String userEmail = bundle.getString("Email");
+        Date dNow = new Date( );
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        UniqueShotID = formatter.format(dNow);
+        Format day = new SimpleDateFormat("yyyy-MM-dd");
+        String dayOfShot = day.format(dNow);
+        roundStressDTO.setDay(dayOfShot);
+        roundStressDTO.setEmail(userEmail);
+        roundStressDTO.setSkinTimes(skinTimes);
+        roundStressDTO.setSkinTemp(skinTemp);
+        roundStressDTO.setHRtimes(HRtimes);
+        roundStressDTO.setHeartRateList(heartRateList);
+        roundStressDTO.setGsrList(gsrList);
+        roundStressDTO.setGsrTimes(gsrTimes);
+
+        try {
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference databaseReference = database.getReference();
+            databaseReference.child("round/"+currentFirebaseUser.getUid()+
+                    "/"+UniqueShotID).setValue(roundStressDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, R.string.couldNotSaveShotData, Toast.LENGTH_LONG).show();
+        }
+        String wetherData =  " ";
+
+    }//end save on clicked
+
 
     /**
      * start heart rate service
