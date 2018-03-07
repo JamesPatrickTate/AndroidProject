@@ -49,6 +49,7 @@ import com.microsoft.band.tiles.pages.TextButtonData;
 
 
 import android.os.AsyncTask;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -108,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
 

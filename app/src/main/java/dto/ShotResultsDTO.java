@@ -29,7 +29,33 @@ public class ShotResultsDTO implements Serializable {
     private String day;
     private int heartRatePreShot;
     private double skinTemp;
+    private double averageSkinTemp;
+    private double averageHeartRate;
+    private double averageGSR;
 
+    public double getAverageSkinTemp() {
+        return averageSkinTemp;
+    }
+
+    public void setAverageSkinTemp(double averageSkinTemp) {
+        this.averageSkinTemp = averageSkinTemp;
+    }
+
+    public double getAverageHeartRate() {
+        return averageHeartRate;
+    }
+
+    public void setAverageHeartRate(double averageHeartRate) {
+        this.averageHeartRate = averageHeartRate;
+    }
+
+    public double getAverageGSR() {
+        return averageGSR;
+    }
+
+    public void setAverageGSR(double averageGSR) {
+        this.averageGSR = averageGSR;
+    }
 
     public double getSkinTemp() {
         return skinTemp;
@@ -169,9 +195,9 @@ public class ShotResultsDTO implements Serializable {
                 +"Distance: "+shotDistance+"m \n\n"
                 +"Address: "+golfCourseAddress+" \n\n"
                 +"Stress Indcators: \n" +
-                "GSR: "+gsr+" ohm \n"+
-                "Heart Rate: " + heartRatePreShot+"BPM \n"+
-                "Skin Temperature: "+ skinTemp;
+                "GSR: "+gsr+" ohm  :: average: "+ averageGSR +"\n" +
+                "Heart Rate: " + heartRatePreShot+"BPM :: average: "+ averageHeartRate +"\n" +
+                "Skin Temperature: "+ skinTemp +"celsuis :: average: "+ averageSkinTemp ;
     }
 
 

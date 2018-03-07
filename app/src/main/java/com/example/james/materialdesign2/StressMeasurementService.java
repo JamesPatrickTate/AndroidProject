@@ -1,8 +1,10 @@
 package com.example.james.materialdesign2;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -35,6 +37,10 @@ public class StressMeasurementService extends Service
 {
     private BandClient client = null;
     double t = 0.0;
+    private PowerManager pm;
+    private PowerManager.WakeLock wl;
+
+    //
     ////////
 
     private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
@@ -43,7 +49,8 @@ public class StressMeasurementService extends Service
             if (event != null) {
                 appendToUI(String.format("Resistance = %d kOhms\n", event.getResistance()));
                 NewShot.gsrPreShot = event.getResistance();
-                t = event.getResistance()/10000;
+                t = event.getResistance()/100;
+
                 MainActivity.gsrList.add(t);
                 MainActivity.gsrTimes.add(event.getTimestamp());
             }
@@ -96,11 +103,18 @@ public class StressMeasurementService extends Service
     @Override
     public void onCreate() {
         super.onCreate();
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TAG");
     }
     //final  = new WeakReference<Activity>(this);
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+
+
+        // turn on cpu wake lock
+        wl.acquire();
 
         new HeartRateSubscriptionTask().execute();
         //Toast.makeText(this, "Service has begun", Toast.LENGTH_LONG).show();
@@ -121,6 +135,8 @@ public class StressMeasurementService extends Service
             } catch (BandException e) {
                 // Do nothing as this is happening during destroy
             }
+            // turn off wake lock
+            wl.release();
             super.onDestroy();
         }
        // Toast.makeText(this, "Service has stopped", Toast.LENGTH_LONG).show();

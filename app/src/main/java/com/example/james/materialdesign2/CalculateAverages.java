@@ -17,6 +17,7 @@ public class CalculateAverages {
 
     private List<ShotResultsDTO> allSHotData = new ArrayList<>();
     private final double acceptableRange = 2.0;
+    String club = " ";
 
     /**
      *
@@ -35,9 +36,13 @@ public class CalculateAverages {
 
 
         for(ShotResultsDTO d : allSHotData) {
+            //TODO PRINT FULL CLUB NAMES FOR SUGGESTION
 
-            //club concatenated with swing length
-            String key = d.getClub() + "|" + d.getSwingLength();
+//            //club concatenated with swing length
+//            if(d.getClub().equals('D')) {
+//                club = "Driver ";
+//            }else if (d.getClub().equals(""))
+            String key = d.getClub() + " = " + d.getSwingLength();
             Double distance = d.getShotDistance();
             //distance = round(distance, 2);
 

@@ -17,7 +17,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <!--To keep service runing, cpu stays on in backround-->
+    <!-- To keep service runing, cpu stays on in backround -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -115,7 +115,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.james.materialdesign2.MainActivity" />
         </activity>
-        <service android:name=".StressMeasurementService" android:enabled="true" android:exported="true"></service>
+
+        <service
+            android:name=".StressMeasurementService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".StressTips"
+            android:label="@string/title_activity_stress_tips"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

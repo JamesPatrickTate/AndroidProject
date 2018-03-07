@@ -128,6 +128,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     public static int heartRatePreShot = 0;
     public static double skinTempPreShot = 0;
     public static double gsrPreShot = 0;
+    private StressAverageCalculator stressAverageCalculator;
+    private List<Double> stressors = new ArrayList<>();
 
     GoogleApiClient gac;
     LocationRequest locationRequest;
@@ -211,6 +213,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         distEnd = (Button) findViewById(R.id.distEnd);
         //will keep screen awake as user takes shot.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //call stress calculator
+        stressAverageCalculator = new StressAverageCalculator();
 
 
 
@@ -416,8 +421,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
                 tvLongitude.setText("accuracy:"+endLocation.getAccuracy());
 
+               stressors = stressAverageCalculator.getStressAverages();
+               // Toast.makeText(NewShot.this, "Average Stressors: " + stressors, Toast.LENGTH_LONG).show();
 
-                //tvLatitude.setText("bet:"+t[0]);
 
             }
         });
@@ -637,6 +643,9 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setEmail(userEmail);
         shotData.setHeartRatePreShot(heartRatePreShot);
         shotData.setSkinTemp(skinTempPreShot);
+        shotData.setAverageGSR(stressors.get(0));
+        shotData.setAverageHeartRate(stressors.get(1));
+        shotData.setAverageSkinTemp(stressors.get(2));
 
 
 
