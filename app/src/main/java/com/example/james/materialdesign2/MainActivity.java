@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     protected static final UUID pageId2 = UUID.fromString("f8508b88-bce8-11e7-abc4-cec278b6b50a");
     protected static final UUID pageId3 = UUID.fromString("2195938e-bcea-11e7-abc4-cec278b6b50a");
     protected static final UUID pageId4 = UUID.fromString("40075faa-bcea-11e7-abc4-cec278b6b50a");
-    private TextView txtStatus;
+    private TextView txtStatus, stressAVGTextView;
     private TextView txtStatusMain;
     private ScrollView scrollView;
     private Button btnStop;
@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     public static List<Long> skinTimes = new ArrayList<>();
     private FirebaseUser currentFirebaseUser;
     private String UniqueShotID;
-
+    private StressAverageCalculator stressAverageCalculator;
+    private List<Double> stressors = new ArrayList<>();
     String TAG = "STRESS";
 
     private  long intialCalories, finalCalories, totalCaloriesBurned = 0;
@@ -111,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+
+
+        stressAverageCalculator = new StressAverageCalculator();
 
 
 
@@ -149,6 +153,12 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             public void onClick(View v) {
                 new HeartRateConsentTask().execute(reference);
                 startService(btnStart);
+                stressAVGTextView = (TextView) findViewById(R.id.stressAverage);
+                stressors = stressAverageCalculator.getStressAverages();
+                Log.d("AVG", "onCreate: "+ stressors);
+                if(stressors.size() > 0)
+                    stressAVGTextView.setText("GSR: "+HelperMethods.round(stressors.get(0),2)+", Heart Rate: "+HelperMethods.round(stressors.get(1),2)+", Skin Temp: "+HelperMethods.round(stressors.get(2),2));
+
 
             }
         });

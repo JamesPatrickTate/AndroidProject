@@ -32,6 +32,83 @@ public class ShotResultsDTO implements Serializable {
     private double averageSkinTemp;
     private double averageHeartRate;
     private double averageGSR;
+    private double averageWristSpeed;
+    private double averageDistance;
+    private String shotQuality;
+    private double differenceSkinTemp;
+    private double differenceHeartRate;
+    private double differenceGSR;
+    private double differenceWristSpeed;
+    private double differenceDistance;
+
+    public double getDifferenceSkinTemp() {
+        return differenceSkinTemp;
+    }
+
+    public void setDifferenceSkinTemp(double differenceSkinTemp) {
+        this.differenceSkinTemp = differenceSkinTemp;
+    }
+
+    public double getDifferenceHeartRate() {
+        return differenceHeartRate;
+    }
+
+    public void setDifferenceHeartRate(double differenceHeartRate) {
+        this.differenceHeartRate = differenceHeartRate;
+    }
+
+    public double getDifferenceGSR() {
+        return differenceGSR;
+    }
+
+    public void setDifferenceGSR(double differenceGSR) {
+        this.differenceGSR = differenceGSR;
+    }
+
+    public double getDifferenceWristSpeed() {
+        return differenceWristSpeed;
+    }
+
+    public void setDifferenceWristSpeed(double differenceWristSpeed) {
+        this.differenceWristSpeed = differenceWristSpeed;
+    }
+
+    public double getDifferenceDistance() {
+        return differenceDistance;
+    }
+
+    public void setDifferenceDistance(double differenceDistance) {
+        this.differenceDistance = differenceDistance;
+    }
+
+    public String getShotQuality() {
+        return shotQuality;
+    }
+
+    public void setShotQuality(String shotQuality) {
+        this.shotQuality = shotQuality;
+    }
+
+
+
+
+
+
+    public double getAverageWristSpeed() {
+        return averageWristSpeed;
+    }
+
+    public void setAverageWristSpeed(double averageWristSpeed) {
+        this.averageWristSpeed = averageWristSpeed;
+    }
+
+    public double getAverageDistance() {
+        return averageDistance;
+    }
+
+    public void setAverageDistance(double averageDistance) {
+        this.averageDistance = averageDistance;
+    }
 
     public double getAverageSkinTemp() {
         return averageSkinTemp;
@@ -189,15 +266,17 @@ public class ShotResultsDTO implements Serializable {
 
     @Override
     public String toString() {
-        return   "Club:     "+club+"\n\n"
-                +"Swing:    "+swingLength+"\n\n"
-                +"Velocity: "+shotVelocity+"m/s \n\n"
-                +"Distance: "+shotDistance+"m \n\n"
-                +"Address: "+golfCourseAddress+" \n\n"
+        return   "Club:     "+club+"\n"
+                +"Swing:    "+swingLength+"\n"
+                +"Address: "+golfCourseAddress+" \n"
+                +"Shot Quality: " + shotQuality+"\n"
+                +"Current value follwed by difference with average: \n"
+                +"Velocity: "+shotVelocity+"m/s : "+differenceWristSpeed +"\n"
+                +"Distance: "+shotDistance+" : "+differenceDistance+"\n"
                 +"Stress Indcators: \n" +
-                "GSR: "+gsr+" ohm  :: average: "+ averageGSR +"\n" +
-                "Heart Rate: " + heartRatePreShot+"BPM :: average: "+ averageHeartRate +"\n" +
-                "Skin Temperature: "+ skinTemp +"celsuis :: average: "+ averageSkinTemp ;
+                "GSR: "+gsr+" : "+differenceGSR +"\n" +
+                "Heart Rate: " + heartRatePreShot+" : "+differenceHeartRate +"\n" +
+                "Skin Temperature: "+ skinTemp +" : "+differenceSkinTemp +"\n" ;
     }
 
 

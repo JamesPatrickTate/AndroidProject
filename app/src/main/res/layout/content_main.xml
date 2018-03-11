@@ -172,9 +172,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="432dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="432dp" />
+        app:layout_constraintGuide_begin="432dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline2"
@@ -205,5 +203,13 @@
         android:layout_marginLeft="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/stressAverage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
 </android.support.constraint.ConstraintLayout>

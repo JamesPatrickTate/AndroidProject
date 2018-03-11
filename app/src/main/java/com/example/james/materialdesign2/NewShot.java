@@ -130,6 +130,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
     public static double gsrPreShot = 0;
     private StressAverageCalculator stressAverageCalculator;
     private List<Double> stressors = new ArrayList<>();
+    CalculateAverageWristSpeed calculateAverageWristSpeed;
 
     GoogleApiClient gac;
     LocationRequest locationRequest;
@@ -140,6 +141,8 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
     boolean startRecordingDataPoints = false;
     double gsrValue = 0.0;
+
+
 
     ////////////////////////
 
@@ -378,6 +381,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
 
 
+                 calculateAverageWristSpeed = new CalculateAverageWristSpeed(clubSelector.getSelectedItem().toString(), shotSelector.getSelectedItem().toString());
 
                 startLocation = currentLocation;
 
@@ -438,10 +442,7 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         saveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                snackbar = Snackbar
-                        .make(getWindow().getDecorView().getRootView(), R.string.try_to_save,
-                                Snackbar.LENGTH_SHORT);
-                snackbar.show();
+
 
                 Handler h = new Handler();
 
@@ -616,10 +617,11 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
 //
 
-        Toast.makeText(this, "Address : "+ golfCourseAddress , Toast.LENGTH_LONG).show();
+
 
         club = clubSelector.getSelectedItem().toString();
         swingLength = shotSelector.getSelectedItem().toString();
+
 
         // create a DTO to hold our shotData information.
         ShotResultsDTO shotData = new ShotResultsDTO();
@@ -631,22 +633,63 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
         shotData.setClub(club);
         shotData.setSwingLength(swingLength);
         shotData.setUserID(currentFirebaseUser.getUid());
-        shotData.setShotDistance(shotDistance);
+        shotData.setShotDistance(HelperMethods.round(shotDistance, 2));
         shotData.setShotVelocity(maxVel);
         shotData.setStartLatitude(startLatitude);
         shotData.setStartLongitude(startLongitude);
         shotData.setEndLatitude(endLatitude);
         shotData.setEndLongitude(endLongitude);
-        shotData.setGsr(gsrPreShot);
+        shotData.setGsr(HelperMethods.round(gsrPreShot, 2));
         //shotData.setGsr(gsrValue);
         shotData.setgolfCourseAddress(golfCourseAddress);
         shotData.setEmail(userEmail);
         shotData.setHeartRatePreShot(heartRatePreShot);
-        shotData.setSkinTemp(skinTempPreShot);
-        shotData.setAverageGSR(stressors.get(0));
-        shotData.setAverageHeartRate(stressors.get(1));
-        shotData.setAverageSkinTemp(stressors.get(2));
+        shotData.setSkinTemp(HelperMethods.round(skinTempPreShot, 2));
+        shotData.setAverageGSR(HelperMethods.round(stressors.get(0), 2));
+        shotData.setAverageHeartRate(HelperMethods.round(stressors.get(1), 2));
+        shotData.setAverageSkinTemp(HelperMethods.round(stressors.get(2), 2));
+        shotData.setAverageDistance(HelperMethods.round(calculateAverageWristSpeed.getDisatanceAverages(), 2));
+        shotData.setAverageWristSpeed(HelperMethods.round(calculateAverageWristSpeed.getWristSpeedAverages(),2));
+        //get shot quality
+        ShotAnalysis shotAnalysis = new ShotAnalysis(shotDistance,calculateAverageWristSpeed.getDisatanceAverages() );
 
+       // Toast.makeText(NewShot.this, "Your shot was ::: "+ shotAnalysis.getShotQuality(), Toast.LENGTH_LONG).show();
+        shotData.setDifferenceDistance(shotAnalysis.differenceInDistance());
+        shotData.setDifferenceWristSpeed(
+                shotAnalysis.differenceInWristSpeed(maxVel,
+                        HelperMethods.round(calculateAverageWristSpeed.getWristSpeedAverages(),2) ));
+        shotData.setDifferenceGSR(shotAnalysis.differenceGSR(
+                HelperMethods.round(gsrPreShot, 2), HelperMethods.round(stressors.get(0), 2)
+        ));
+        shotData.setDifferenceSkinTemp(shotAnalysis.differenceInSkinTemp(
+                HelperMethods.round(stressors.get(2), 2), HelperMethods.round(stressors.get(2), 2)
+        ));
+        shotData.setDifferenceHeartRate(shotAnalysis.differenceHeartrate(
+                heartRatePreShot, HelperMethods.round(stressors.get(1), 2)
+        ));
+        shotData.setShotQuality(shotAnalysis.getShotQuality());
+
+        Toast.makeText(this, "Your shot was ::: "+ shotAnalysis.getShotQuality()+"\n"
+                + "Distance = "+HelperMethods.round(shotDistance, 2)+" : "+shotAnalysis.differenceInDistance()+ "\n"
+                + "WristSpeed = "+HelperMethods.round(maxVel, 2)+" : "+shotAnalysis.differenceInWristSpeed(maxVel,
+                HelperMethods.round(calculateAverageWristSpeed.getWristSpeedAverages(),2) )+ "\n"
+                 +"HR = "+heartRatePreShot+ "\n"
+                +"SkinTemp = " +HelperMethods.round(skinTempPreShot, 2)+ "\n"
+                +"GSR = "+ HelperMethods.round(gsrPreShot, 2),Toast.LENGTH_LONG).show();
+
+        snackbar = Snackbar
+                .make(getWindow().getDecorView().getRootView(),
+                        "Your shot was ::: "+ shotAnalysis.getShotQuality()+"\n"
+                        +"Distance = "+HelperMethods.round(shotDistance, 2)+" difference with average "+shotAnalysis.differenceInDistance()+ "\n"
+                        ,
+                        Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("DISMISS", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }});
+
+        snackbar.show();
 
 
 

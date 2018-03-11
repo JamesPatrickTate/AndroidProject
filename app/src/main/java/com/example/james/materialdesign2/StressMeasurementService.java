@@ -39,6 +39,7 @@ public class StressMeasurementService extends Service
     double t = 0.0;
     private PowerManager pm;
     private PowerManager.WakeLock wl;
+    double skinTemptodisplay = 0.0;
 
     //
     ////////
@@ -47,7 +48,7 @@ public class StressMeasurementService extends Service
         @Override
         public void onBandGsrChanged(final BandGsrEvent event) {
             if (event != null) {
-                appendToUI(String.format("Resistance = %d kOhms\n", event.getResistance()));
+                //appendToUI(String.format("Resistance = %d kOhms\n", event.getResistance()));
                 NewShot.gsrPreShot = event.getResistance();
                 t = event.getResistance()/100;
 
@@ -66,6 +67,7 @@ public class StressMeasurementService extends Service
                 NewShot.skinTempPreShot = bandSkinTemperatureEvent.getTemperature();
                 MainActivity.skinTemp.add(bandSkinTemperatureEvent.getTemperature());
                 MainActivity.skinTimes.add(bandSkinTemperatureEvent.getTimestamp());
+                skinTemptodisplay = bandSkinTemperatureEvent.getTemperature();
                 // Log.i(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
                 //Log.d(TAG, "onBandSkinTemperatureChanged: " + bandSkinTemperatureEvent.getTemperature());
 
@@ -91,7 +93,8 @@ public class StressMeasurementService extends Service
         public void onBandHeartRateChanged(final BandHeartRateEvent event) {
             if (event != null) {
                 appendToUI(String.format("Heart Rate = %d beats per minute\n"
-                        + "Quality = %s\n", event.getHeartRate(), event.getQuality()));
+                        + "Skin Temperature = "+ HelperMethods.round(skinTemptodisplay, 2)+" Celsius \n"
+                        +"GSR =  "+ t+" kOhms", event.getHeartRate(), event.getQuality()));
                 MainActivity.heartRateList.add(event.getHeartRate());
                 MainActivity.HRtimes.add(event.getTimestamp());
                 NewShot.heartRatePreShot = event.getHeartRate();
