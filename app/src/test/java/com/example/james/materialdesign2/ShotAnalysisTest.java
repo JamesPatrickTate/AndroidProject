@@ -21,17 +21,17 @@ public class ShotAnalysisTest {
     }
 
     @Test
-    public void testShotQualityGreat() {
-        org.junit.Assert.assertEquals(shotAnalysisLong.getShotQuality(), "Great");
+    public void testShotQualityAboveAverage() {
+        org.junit.Assert.assertEquals(shotAnalysisLong.getShotQuality(), "ABOVE AVERAGE");
     }
     @Test
     public void testShotQualityAverage() {
-        org.junit.Assert.assertEquals(shotAnalysisShort.getShotQuality(), "Average");
+        org.junit.Assert.assertEquals(shotAnalysisShort.getShotQuality(), "AVERAGE");
     }
 
     @Test
-    public void testShotQualityAwful() {
-        org.junit.Assert.assertEquals(shotAnalysisVeryShort.getShotQuality(), "Awful");
+    public void testShotQualityBelowAverage() {
+        org.junit.Assert.assertEquals(shotAnalysisVeryShort.getShotQuality(), "BELOW AVERAGE");
     }
 
 

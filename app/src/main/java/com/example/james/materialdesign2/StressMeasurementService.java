@@ -30,7 +30,7 @@ import android.os.AsyncTask;
 
 
 /**
- * Created by james on 17/02/2018.
+ * This is a started service. Which records three stressors continually until stopped.
  */
 
 public class StressMeasurementService extends Service
@@ -41,8 +41,11 @@ public class StressMeasurementService extends Service
     private PowerManager.WakeLock wl;
     double skinTemptodisplay = 0.0;
 
-    //
-    ////////
+    /**
+     * Listener which updatates the gsr list every time there is a change in GSR.
+     * The gsrList is a static list from the main activity and saved to the main activity.
+     * This is then saved to the dto
+     */
 
     private BandGsrEventListener mGsrEventListener = new BandGsrEventListener() {
         @Override
@@ -57,8 +60,12 @@ public class StressMeasurementService extends Service
             }
         }
     };
-    //private BandClient client = null;
 
+    /**
+     * Listener which updatates the skin temp list every time there is a change in skin temp.
+     * The skin temp List is a static list from the main activity and saved to the main activity.
+     * This is then saved to the dto
+     */
 
     private BandSkinTemperatureEventListener bandSkinTemperatureEventListener = new BandSkinTemperatureEventListener() {
         @Override
@@ -87,6 +94,12 @@ public class StressMeasurementService extends Service
             MESSAGE = "string";
     private String string = "";
 
+    /**
+     * Listener which updatates the heart rate list every time there is a change in heart rate.
+     * The heart rate List is a static list from the main activity and saved to the main activity.
+     * This is then saved to the dto
+     */
+
 
     private BandHeartRateEventListener mHeartRateEventListener = new BandHeartRateEventListener() {
         @Override
@@ -111,6 +124,14 @@ public class StressMeasurementService extends Service
     }
     //final  = new WeakReference<Activity>(this);
 
+    /**
+     * Start the service and turn on the lsiteners
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
@@ -127,6 +148,10 @@ public class StressMeasurementService extends Service
         new GsrSubscriptionTask().execute();
         return  START_STICKY;
     }
+
+    /**
+     * Stop the listeners.
+     */
 
     @Override
     public void onDestroy() {
@@ -153,7 +178,13 @@ public class StressMeasurementService extends Service
     }//end bind
 
 
-    // MS Band Related methods
+    /**
+     *  MS Band Related methods
+     *
+     *  These are standard methods required for using the band sensors.
+     *
+      */
+
 
     private class HeartRateSubscriptionTask extends AsyncTask<Void, Void, Void> {
         @Override

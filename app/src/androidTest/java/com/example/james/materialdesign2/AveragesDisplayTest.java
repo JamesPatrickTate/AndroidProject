@@ -58,7 +58,7 @@ public class AveragesDisplayTest {
      */
 
     @Test
-    public void openSingleShotDataTest(){
+    public void openAverageTest(){
         onData(anything()).inAdapterView(withContentDescription("AVGlist"))
                 .atPosition(0).check(matches(withText("SW|Full :: 5.2 m")));
 

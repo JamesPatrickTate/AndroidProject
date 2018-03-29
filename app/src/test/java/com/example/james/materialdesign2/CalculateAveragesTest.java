@@ -97,7 +97,8 @@ public class CalculateAveragesTest {
         CalculateAverages calculateAverages = new CalculateAverages(allSHotData);
         HashMap<String, Double> suggestions = new HashMap<>();
         suggestions = calculateAverages.suggestionResults(10.0);
-        org.junit.Assert.assertTrue(suggestions.size() == 1 && suggestions.containsKey("iron2|1/2") && !suggestions.containsKey("iron|1/2") );
+        org.junit.Assert.assertTrue(suggestions.size() == 1
+                && suggestions.containsKey("iron2|1/2") && !suggestions.containsKey("iron|1/2") );
     }
 
     @Test

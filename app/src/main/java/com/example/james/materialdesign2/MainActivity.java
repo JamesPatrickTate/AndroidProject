@@ -68,6 +68,16 @@ import dto.ShotResultsDTO;
 
 import static com.example.james.materialdesign2.StressMeasurementService.MESSAGE;
 
+/**
+ * This is the main Main activity for the application.
+ * Once the user logs in they are brought to this activity.
+ *
+ * This page intially had buttons to broadcast buttons to the Microsoft Band.
+ * However the band couldnt interact with the Android applcation.
+ *
+ * This page page
+ */
+
 
 /////////////////////////////////////////////////////////////////
 
@@ -146,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
 
-
+        // starts stress service
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             @SuppressWarnings("unchecked")
@@ -164,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         });
 
 
-
+        // stops stress service
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -222,9 +232,11 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
     }//end of onCreate
 
-    //save stress data for round
+
     /**
-     * creates dto and saves to data base
+     * Once the user is finished their round and they press the end button all of the
+     * data that is saved to a round stress data transfer object.
+     * This dto is saved to the firebase as one object.
      */
     public  void onSaveClicked() {
 
@@ -263,40 +275,20 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
     /**
-     * start heart rate service
+     * Start the stress service. This will continue to run until stopped by the user at the end of the round.
      */
     public void startService( View view) {
         //heart rate works
         Intent heartRateIntent = new Intent(this, StressMeasurementService.class);
         startService(heartRateIntent);
-//        //calorie doesnt work
-//        Intent calorieIntent = new Intent(this, CaloriesService.class);
-//        startService(calorieIntent);
-        //skin temp
-
-
-        //intialCalories = currentCals;
-        //Toast.makeText(MainActivity.this, "intialCalories " + intialCalories, Toast.LENGTH_LONG).show();
-
     }
 
-
-
     /**
-     * stop heart rate service
+     * Stop the service at the end of the round.
      */
     public void stopService(View view) {
         Intent heartRateIntent = new Intent(this, StressMeasurementService.class);
         stopService(heartRateIntent);
-
-
-
-        //calories
-//        finalCalories = currentCals;
-//        totalCaloriesBurned = finalCalories - intialCalories;
-//        Toast.makeText(MainActivity.this, " finalCalories " +  finalCalories+ " totalCaloriesBurned "+totalCaloriesBurned, Toast.LENGTH_LONG).show();
-//        Intent calorieIntent = new Intent(this, CaloriesService.class);
-//        stopService(calorieIntent);
     }
 
 
@@ -339,12 +331,21 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
     }
 
+    /**
+     * Open the club suggestions activity
+     * @param view
+     */
 
     private void openSuggestions(View view) {
 
         Intent intent = new Intent(this, ClubSuggestion.class);
         startActivity(intent);
     }
+
+    /**
+     * Open the new shot activity
+     * @param view
+     */
 
     private void openNewShot(View view) {
 
@@ -358,6 +359,10 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         startActivity(intent);
     }
 
+    /**
+     * open the shot data activity
+     * @param view
+     */
     private void openShotData(View view) {
 
         Intent intent = new Intent(this, ShotDataDisplay.class);
@@ -394,6 +399,55 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             }
             super.onDestroy();
         }
+
+    /**
+     * open drawer
+     * @param view
+     * @param position
+     */
+
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+        displayView(position);
+    }
+
+    private void displayView(int position) {
+        Fragment fragment = null;
+        String title = getString(R.string.app_name);
+        Intent intent;
+        switch (position) {
+            case 0:
+                intent = new Intent(this, ShotDataDisplay.class);
+                startActivity(intent);
+
+                break;
+            case 1:
+                intent = new Intent(this, ShotAverages.class);
+                startActivity(intent);
+            case 2:
+//                fragment = new MessagesFragment();
+//                title = getString(R.string.title_messages);
+                break;
+            default:
+                break;
+        }
+
+        if (fragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.container_body, fragment);
+            fragmentTransaction.commit();
+
+            // set the toolbar title
+            getSupportActionBar().setTitle(title);
+        }
+    }
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /* Below are the methods which broacast to the band. They are just they are here to show work that was attempted.*/
 
     protected void processIntent(Intent intent){
         String extraString = intent.getStringExtra(getString(R.string.intent_key));
@@ -758,42 +812,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
 
-    @Override
-    public void onDrawerItemSelected(View view, int position) {
-        displayView(position);
-    }
 
-    private void displayView(int position) {
-        Fragment fragment = null;
-        String title = getString(R.string.app_name);
-        Intent intent;
-        switch (position) {
-            case 0:
-             intent = new Intent(this, ShotDataDisplay.class);
-                startActivity(intent);
-
-                break;
-            case 1:
-                 intent = new Intent(this, ShotAverages.class);
-                startActivity(intent);
-            case 2:
-//                fragment = new MessagesFragment();
-//                title = getString(R.string.title_messages);
-                break;
-            default:
-                break;
-        }
-
-        if (fragment != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.container_body, fragment);
-            fragmentTransaction.commit();
-
-            // set the toolbar title
-            getSupportActionBar().setTitle(title);
-        }
-    }
 
 
 

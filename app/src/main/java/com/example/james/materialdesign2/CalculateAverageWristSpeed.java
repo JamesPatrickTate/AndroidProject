@@ -44,7 +44,7 @@ public class CalculateAverageWristSpeed {
     }
 
     /**
-     *  Caculates average for each stressor
+     *  Caculates average for each club and swing
      */
 
     private void calculateAverages(){

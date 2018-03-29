@@ -75,9 +75,8 @@ import dto.UserDTO;
 
 /**
  * https://developers.google.com/android/guides/api-client workng on this page for maps
- *
- *
  * http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&APPID=acd069c689dcab6dd5f89d4425a2045c
+ * 
  */
 
 public class NewShot extends AppCompatActivity implements OnItemSelectedListener,
@@ -294,21 +293,12 @@ public class NewShot extends AppCompatActivity implements OnItemSelectedListener
 
             @Override
             public void onClick(View v) {
-
-
-
-
-
                 startRecordingDataPoints = true;
                 txtStatus.setText("");
-
-
                 new AccelerometerSubscriptionTask().execute();
                 snackbar = Snackbar
                         .make(getWindow().getDecorView().getRootView(), "Swing Record ON.", Snackbar.LENGTH_SHORT);
                 snackbar.show();
-
-
 
             }
         });

@@ -9,6 +9,10 @@ import android.content.Intent;
 import com.example.james.materialdesign2.MainActivity;
 import com.microsoft.band.tiles.TileEvent;
 
+/**
+ * This class is needed for sending a application to the band.
+ */
+
 public class TileEventReceiver extends BroadcastReceiver {
 
 	@Override
